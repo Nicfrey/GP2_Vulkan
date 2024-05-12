@@ -15,6 +15,8 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 	const VkAllocationCallbacks* pAllocator);
 void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
+struct QueueFamilyIndices;
+
 class VulkanApp
 {
 public:
@@ -35,6 +37,7 @@ private:
 	VkPhysicalDevice m_PhysicalDevice{ VK_NULL_HANDLE };
 	VkDevice m_Device;
 	VkQueue m_GraphicsQueue;
+	VkQueue m_PresentQueue;
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -55,7 +58,7 @@ private:
 	 * Rate a physical device based on its suitability for the application
 	*/
 	int RateDeviceSuitability(VkPhysicalDevice device);
-	uint32_t FindQueueFamilies(VkPhysicalDevice device);
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 	void CreateLogicalDevice();
 	void CreateSurface();
 };
