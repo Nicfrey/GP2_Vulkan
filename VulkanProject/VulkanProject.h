@@ -28,6 +28,9 @@ private:
 	// instance
 	VkInstance m_Instance;
 	VkDebugUtilsMessengerEXT m_DebugMessenger;
+	VkPhysicalDevice m_PhysicalDevice{ VK_NULL_HANDLE };
+	VkDevice m_Device;
+	VkQueue m_GraphicsQueue;
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -49,4 +52,5 @@ private:
 	*/
 	int RateDeviceSuitability(VkPhysicalDevice device);
 	uint32_t FindQueueFamilies(VkPhysicalDevice device);
+	void CreateLogicalDevice();
 };
