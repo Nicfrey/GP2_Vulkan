@@ -201,3 +201,44 @@ std::vector<const char*> VulkanApp::GetRequiredExtensions()
 
 	return extensions;
 }
+
+void VulkanApp::PickPhysicalDevice()
+{
+	VkPhysicalDevice physicalDevice{ VK_NULL_HANDLE };
+
+	uint32_t deviceCount{ 0 };
+	vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+	if (deviceCount == 0)
+	{
+		throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+	}
+	std::vector<VkPhysicalDevice> devices{ deviceCount };
+	vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
+
+	for (const auto& device : devices)
+	{
+		if (IsDeviceSuitable(device))
+		{
+			physicalDevice = device;
+			break;
+		}
+	}
+
+	if (physicalDevice == VK_NULL_HANDLE)
+	{
+		throw std::runtime_error("Failed to find a suitable GPU!");
+	}
+}
+
+bool VulkanApp::IsDeviceSuitable(VkPhysicalDevice device)
+{
+	// Get properties of device
+	VkPhysicalDeviceProperties deviceProperties;
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+	// Get features of device
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+	return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+}
