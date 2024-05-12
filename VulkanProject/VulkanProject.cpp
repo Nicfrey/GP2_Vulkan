@@ -98,6 +98,7 @@ void VulkanApp::InitVulkan()
 	CreateInstance();
 	SetupDebugMessenger(); 
 	CreateLogicalDevice();
+	CreateSurface();
 }
 
 void VulkanApp::MainLoop()
@@ -116,6 +117,7 @@ void VulkanApp::Cleanup()
 		DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 	}
 
+	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 	vkDestroyInstance(m_Instance, nullptr);
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();
@@ -362,4 +364,12 @@ void VulkanApp::CreateLogicalDevice()
 		throw std::runtime_error("Failed to create logical device!");
 	}
 	vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+}
+
+void VulkanApp::CreateSurface()
+{
+	if(glfwCreateWindowSurface(m_Instance, m_Window, nullptr, &m_Surface) != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create window surface!");
+	}
 }

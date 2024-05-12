@@ -1,9 +1,12 @@
 #pragma once
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 //#define SELECTING_DEVICE 
 #include <vector>
 
 #include "GLFW/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
 #include "vulkan/vulkan.h"
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -28,6 +31,7 @@ private:
 	// instance
 	VkInstance m_Instance;
 	VkDebugUtilsMessengerEXT m_DebugMessenger;
+	VkSurfaceKHR m_Surface;
 	VkPhysicalDevice m_PhysicalDevice{ VK_NULL_HANDLE };
 	VkDevice m_Device;
 	VkQueue m_GraphicsQueue;
@@ -53,4 +57,5 @@ private:
 	int RateDeviceSuitability(VkPhysicalDevice device);
 	uint32_t FindQueueFamilies(VkPhysicalDevice device);
 	void CreateLogicalDevice();
+	void CreateSurface();
 };
