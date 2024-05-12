@@ -1,5 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
+//#define SELECTING_DEVICE 
 #include <vector>
 
 #include "GLFW/glfw3.h"
@@ -35,4 +36,17 @@ private:
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
+	/**
+	 * Select a physical device to use with Vulkan
+	*/
+	void PickPhysicalDevice();
+	/**
+	 * Check if a physical device is suitable for the application (e.g. GPU)
+	*/
+	bool IsDeviceSuitable(VkPhysicalDevice device);
+	/**
+	 * Rate a physical device based on its suitability for the application
+	*/
+	int RateDeviceSuitability(VkPhysicalDevice device);
+	uint32_t FindQueueFamilies(VkPhysicalDevice device);
 };

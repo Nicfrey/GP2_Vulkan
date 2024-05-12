@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <map>
+#include <optional>
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -13,6 +15,15 @@ const bool enableValidationLayers { false };
 #else
 const bool enableValidationLayers { true };
 #endif
+
+struct QueueFamilyIndices
+{
+	std::optional<uint32_t> graphicsFamily;
+	bool IsComplete()
+	{
+		return graphicsFamily.has_value();
+	}
+};
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 	const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
@@ -200,4 +211,116 @@ std::vector<const char*> VulkanApp::GetRequiredExtensions()
 	}
 
 	return extensions;
+}
+
+void VulkanApp::PickPhysicalDevice()
+{
+	VkPhysicalDevice physicalDevice{ VK_NULL_HANDLE };
+
+	uint32_t deviceCount{ 0 };
+	vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+
+	if(deviceCount == 0)
+	{
+		throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+	}
+
+	// Get physical devices
+	std::vector<VkPhysicalDevice> devices{ deviceCount };
+	vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
+#ifdef SELECTING_DEVICE
+	// Check if a device is suitable
+	for (const auto& device : devices)
+	{
+		if (IsDeviceSuitable(device))
+		{
+			physicalDevice = device;
+			break;
+		}
+	}
+	#else
+	// Rate devices based on suitability
+	std::multimap<int, VkPhysicalDevice> candidates;
+
+	for(const auto& device: devices)
+	{
+		int score{ RateDeviceSuitability(device) };
+		candidates.insert(std::make_pair(score, device));
+	}
+
+	// Check if the best candidate is suitable	
+	if(candidates.rbegin()->first > 0)
+	{
+		physicalDevice = candidates.rbegin()->second;
+	}
+	else
+	{
+		throw std::runtime_error("Failed to find a suitable GPU!");
+	}
+	#endif
+}
+
+bool VulkanApp::IsDeviceSuitable(VkPhysicalDevice device)
+{
+	QueueFamilyIndices indices{ FindQueueFamilies(device) };
+
+    return indices.IsComplete();
+}
+
+int VulkanApp::RateDeviceSuitability(VkPhysicalDevice device)
+{
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+	
+	int score{ 0 };
+
+	// Discrete GPUs have a significant performance advantage
+	if(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+	{
+		score += 1000;
+	}
+
+	// Maximum possible size of textures affects graphics quality
+	score += deviceProperties.limits.maxImageDimension2D;
+
+	// Application can't function without geometry shaders
+	if(deviceFeatures.geometryShader)
+	{
+		return 0;
+	}
+
+    return score;
+}
+
+uint32_t VulkanApp::FindQueueFamilies(VkPhysicalDevice device)
+{
+	QueueFamilyIndices indices;
+
+	// Get the number of queue families
+	uint32_t queueFamilyCount{ 0 };
+	vkGetPhysicalDeviceQueueFamilyProperties(device,&queueFamilyCount,nullptr);
+
+	// Get queue families
+	std::vector<VkQueueFamilyProperties> queueFamilies{ queueFamilyCount };
+	vkGetPhysicalDeviceQueueFamilyProperties(device,&queueFamilyCount, queueFamilies.data());
+
+	// Find a queue family that supports VK_QUEUE_GRAPHICS_BIT
+	int i{ 0 };
+	for(int i{}; i < queueFamilies.size(); ++i)
+	{
+		if(indices.IsComplete())
+		{
+			break;
+		}
+		
+		if(queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			indices.graphicsFamily = i;
+		}
+	}
+
+	// Assign indices to queue families that could be found
+    return indices;
 }
