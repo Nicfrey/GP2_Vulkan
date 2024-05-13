@@ -82,6 +82,9 @@ private:
 	VkPipelineLayout m_PipelineLayout;
 	VkPipeline m_GraphicsPipeline;
 
+	VkCommandPool m_CommandPool;
+	VkCommandBuffer m_CommandBuffer;
+
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -117,4 +120,7 @@ private:
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
 	void CreateRenderPass();
 	void CreateFramebuffers();
+	void CreateCommandPool();
+	void CreateCommandBuffer();
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 };
