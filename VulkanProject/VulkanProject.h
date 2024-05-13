@@ -14,6 +14,8 @@ const bool enableValidationLayers{ false };
 const bool enableValidationLayers{ true };
 #endif
 
+constexpr int MAX_FRAMES_IN_FLIGHT{ 2 };
+
 struct QueueFamilyIndices
 {
 	std::optional<uint32_t> graphicsFamily;
@@ -83,11 +85,12 @@ private:
 	VkPipeline m_GraphicsPipeline;
 
 	VkCommandPool m_CommandPool;
-	VkCommandBuffer m_CommandBuffer;
+	std::vector<VkCommandBuffer> m_CommandBuffers;
 
-	VkSemaphore m_ImageAvailableSemaphore;
-	VkSemaphore m_RenderFinishedSemaphore;
-	VkFence m_InFlightFence;
+	std::vector<VkSemaphore> m_ImageAvailableSemaphores;
+	std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+	std::vector<VkFence> m_InFlightFences;
+	uint32_t m_CurrentFrame{ 0 };
 
 
 	void SetupDebugMessenger();
