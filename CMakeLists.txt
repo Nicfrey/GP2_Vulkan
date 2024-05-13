@@ -21,7 +21,17 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(imgui)
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY https://github.com/g-truc/glm.git
+	GIT_TAG bf71a834948186f4097caa076cd2663c69a10e1e 
+)
+
+FetchContent_MakeAvailable(glm)
+
 find_package(Vulkan REQUIRED)
+find_package(Doxygen REQUIRED)
 
 include_directories(${Vulkan_INCLUDE_DIRS})
 
