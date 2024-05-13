@@ -84,6 +84,7 @@ void VulkanApp::InitVulkan()
 	CreateImageViews();
 	CreateRenderPass();
 	CreateGraphicsPipeline();
+	CreateFramebuffers();
 }
 
 void VulkanApp::MainLoop()
@@ -97,10 +98,14 @@ void VulkanApp::MainLoop()
 
 void VulkanApp::Cleanup()
 {
+	for(const auto framebuffer: m_SwapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+	}
 	vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
-	for(const auto& imageView: m_SwapChainImageViews)
+	for (const auto& imageView : m_SwapChainImageViews)
 	{
 		vkDestroyImageView(m_Device, imageView, nullptr);
 	}
@@ -528,8 +533,8 @@ void VulkanApp::CreateGraphicsPipeline()
 	auto vertShaderCode = ReadFile("shaders/shader.vert.spv");
 	auto fragShaderCode = ReadFile("shaders/shader.frag.spv");
 
-	VkShaderModule vertShaderModule{ CreateShaderModule(vertShaderCode) };
-	VkShaderModule fragShaderModule{ CreateShaderModule(fragShaderCode) };
+	VkShaderModule vertShaderModule{CreateShaderModule(vertShaderCode)};
+	VkShaderModule fragShaderModule{CreateShaderModule(fragShaderCode)};
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -537,7 +542,7 @@ void VulkanApp::CreateGraphicsPipeline()
 	vertShaderStageInfo.module = vertShaderModule;
 	vertShaderStageInfo.pName = "main";
 
-	VkPipelineShaderStageCreateInfo  fragShaderStageInfo{};
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
 	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	fragShaderStageInfo.module = fragShaderModule;
@@ -627,8 +632,8 @@ void VulkanApp::CreateGraphicsPipeline()
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 
-	VkResult result{ vkCreatePipelineLayout(m_Device, &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) };
-	if(result != VK_SUCCESS)
+	VkResult result{vkCreatePipelineLayout(m_Device, &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout)};
+	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -652,7 +657,7 @@ void VulkanApp::CreateGraphicsPipeline()
 	pipelineCreateInfo.basePipelineIndex = -1;
 
 	result = vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_GraphicsPipeline);
-	if(result != VK_SUCCESS)
+	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
@@ -667,8 +672,8 @@ VkShaderModule VulkanApp::CreateShaderModule(const std::vector<char>& code)
 	createInfo.codeSize = code.size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 	VkShaderModule shaderModule;
-	const VkResult result{ vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule) };
-	if(result != VK_SUCCESS)
+	const VkResult result{vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule)};
+	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create shader module!");
 	}
@@ -719,6 +724,34 @@ void VulkanApp::CreateRenderPass()
 	}
 }
 
+void VulkanApp::CreateFramebuffers()
+{
+	m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
+
+	for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
+	{
+		VkImageView attachments[] = {
+			m_SwapChainImageViews[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = m_RenderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = m_SwapChainExtent.width;
+		framebufferInfo.height = m_SwapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		const VkResult result{vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i])};
+
+		if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+	}
+}
+
 VkImageView VulkanApp::CreateImageView(const VkDevice& device, VkImage image, VkFormat format,
                                        VkImageAspectFlags aspectFlags)
 {
@@ -741,8 +774,9 @@ VkImageView VulkanApp::CreateImageView(const VkDevice& device, VkImage image, Vk
 }
 
 VkBool32 VulkanApp::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData)
+                                  VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                  void* pUserData)
 {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 	return VK_FALSE;
@@ -750,14 +784,14 @@ VkBool32 VulkanApp::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message
 
 std::vector<char> VulkanApp::ReadFile(const std::string& filename)
 {
-	std::ifstream file{ filename,std::ios::ate | std::ios::binary };
-	if(!file.is_open())
+	std::ifstream file{filename, std::ios::ate | std::ios::binary};
+	if (!file.is_open())
 	{
 		throw std::runtime_error("failed to open file: " + filename);
 	}
 
 	// Read at the end of the file to determine the file size
-	size_t fileSize{ static_cast<size_t>( file.tellg()) };
+	size_t fileSize{static_cast<size_t>(file.tellg())};
 	std::vector<char> buffer(fileSize);
 
 	file.seekg(0);
