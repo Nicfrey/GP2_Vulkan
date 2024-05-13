@@ -2,6 +2,7 @@
 #define GLFW_INCLUDE_VULKAN
 #define SELECTING_DEVICE 
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "GLFW/glfw3.h"
@@ -57,6 +58,7 @@ public:
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
+	static std::vector<char> ReadFile(const std::string& filename);
 private:
 	GLFWwindow* m_Window;
 	uint32_t m_Width{ 800 };
@@ -107,4 +109,6 @@ private:
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	void CreateSwapChain();
 	void CreateImageViews();
+	void CreateGraphicsPipeline();
+	VkShaderModule CreateShaderModule(const std::vector<char>& code);
 };

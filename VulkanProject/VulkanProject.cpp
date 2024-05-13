@@ -7,6 +7,7 @@
 #include <optional>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                       const VkAllocationCallbacks* pAllocator,
@@ -517,6 +518,47 @@ void VulkanApp::CreateImageViews()
 	}
 }
 
+void VulkanApp::CreateGraphicsPipeline()
+{
+	auto vertShaderCode = ReadFile("shaders/vert.spv");
+	auto fragShaderCode = ReadFile("shaders/frag.spv");
+
+	VkShaderModule vertShaderModule{ CreateShaderModule(vertShaderCode) };
+	VkShaderModule fragShaderModule{ CreateShaderModule(fragShaderCode) };
+
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo  fragShaderStageInfo{};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module = fragShaderModule;
+	fragShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+	vkDestroyShaderModule(m_Device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(m_Device, vertShaderModule, nullptr);
+}
+
+VkShaderModule VulkanApp::CreateShaderModule(const std::vector<char>& code)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	VkShaderModule shaderModule;
+	const VkResult result{ vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule) };
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create shader module!");
+	}
+	return shaderModule;
+}
+
 VkImageView VulkanApp::CreateImageView(const VkDevice& device, VkImage image, VkFormat format,
                                        VkImageAspectFlags aspectFlags)
 {
@@ -544,4 +586,23 @@ VkBool32 VulkanApp::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message
 {
 	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 	return VK_FALSE;
+}
+
+std::vector<char> VulkanApp::ReadFile(const std::string& filename)
+{
+	std::ifstream file{ filename,std::ios::ate | std::ios::binary };
+	if(!file.is_open())
+	{
+		throw std::runtime_error("failed to open file: " + filename);
+	}
+
+	// Read at the end of the file to determine the file size
+	size_t fileSize{ static_cast<size_t>( file.tellg()) };
+	std::vector<char> buffer(fileSize);
+
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+
+	file.close();
+	return buffer;
 }
