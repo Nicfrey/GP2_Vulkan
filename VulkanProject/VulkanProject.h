@@ -78,6 +78,10 @@ private:
 	std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 
 	std::vector<VkImageView> m_SwapChainImageViews;
+	VkRenderPass m_RenderPass;
+	VkPipelineLayout m_PipelineLayout;
+	VkPipeline m_GraphicsPipeline;
+
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -111,4 +115,5 @@ private:
 	void CreateImageViews();
 	void CreateGraphicsPipeline();
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
+	void CreateRenderPass();
 };
