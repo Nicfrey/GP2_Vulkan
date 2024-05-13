@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
-#include <map>
 #include <optional>
 #include <set>
 #include <algorithm>
@@ -87,6 +86,7 @@ void VulkanApp::InitVulkan()
 	CreateFramebuffers();
 	CreateCommandPool();
 	CreateCommandBuffer();
+	CreateSyncObjects();
 }
 
 void VulkanApp::MainLoop()
@@ -94,14 +94,18 @@ void VulkanApp::MainLoop()
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		glfwPollEvents();
+		DrawFrame();
 	}
 	vkDeviceWaitIdle(m_Device);
 }
 
 void VulkanApp::Cleanup()
 {
+	vkDestroySemaphore(m_Device, m_ImageAvailableSemaphore, nullptr);
+	vkDestroySemaphore(m_Device, m_RenderFinishedSemaphore, nullptr);
+	vkDestroyFence(m_Device, m_InFlightFence, nullptr);
 	vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
-	for(const auto framebuffer: m_SwapChainFramebuffers)
+	for (const auto framebuffer : m_SwapChainFramebuffers)
 	{
 		vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
 	}
@@ -757,14 +761,14 @@ void VulkanApp::CreateFramebuffers()
 
 void VulkanApp::CreateCommandPool()
 {
-	const QueueFamilyIndices queueFamilyIndices{ FindQueueFamilies(m_PhysicalDevice) };
+	const QueueFamilyIndices queueFamilyIndices{FindQueueFamilies(m_PhysicalDevice)};
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-	const VkResult result{ vkCreateCommandPool(m_Device,&poolInfo,nullptr,&m_CommandPool) };
+	const VkResult result{vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool)};
 
 	if (result != VK_SUCCESS)
 	{
@@ -780,8 +784,8 @@ void VulkanApp::CreateCommandBuffer()
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = 1;
 
-	const VkResult result{ vkAllocateCommandBuffers(m_Device,&allocInfo,&m_CommandBuffer) };
-	if(result != VK_SUCCESS)
+	const VkResult result{vkAllocateCommandBuffers(m_Device, &allocInfo, &m_CommandBuffer)};
+	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
@@ -885,5 +889,71 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to record command buffer!");
+	}
+}
+
+void VulkanApp::DrawFrame()
+{
+	vkWaitForFences(m_Device, 1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(m_Device, 1, &m_InFlightFence);
+
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	vkResetCommandBuffer(m_CommandBuffer, 0);
+	RecordCommandBuffer(m_CommandBuffer, imageIndex);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = {m_ImageAvailableSemaphore};
+	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_CommandBuffer;
+
+	VkSemaphore signalSemaphores[] = {m_RenderFinishedSemaphore};
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	VkResult result{ vkQueueSubmit(m_GraphicsQueue,1,&submitInfo,m_InFlightFence) };
+
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = {m_SwapChain};
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+	
+}
+
+void VulkanApp::CreateSyncObjects()
+{
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+
+	if (vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore) != VK_SUCCESS ||
+		vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore) != VK_SUCCESS || vkCreateFence(
+			m_Device, &fenceInfo, nullptr, &m_InFlightFence) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create synchronization objects for a frame!");
 	}
 }

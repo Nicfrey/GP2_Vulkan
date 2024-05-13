@@ -85,6 +85,10 @@ private:
 	VkCommandPool m_CommandPool;
 	VkCommandBuffer m_CommandBuffer;
 
+	VkSemaphore m_ImageAvailableSemaphore;
+	VkSemaphore m_RenderFinishedSemaphore;
+	VkFence m_InFlightFence;
+
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -123,4 +127,6 @@ private:
 	void CreateCommandPool();
 	void CreateCommandBuffer();
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	void DrawFrame();
+	void CreateSyncObjects();
 };
