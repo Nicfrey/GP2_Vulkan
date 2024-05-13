@@ -38,7 +38,9 @@ add_custom_target(
     DEPENDS ${SPIRV_BINARY_FILES}
 )
 
-set(SOURCES main.cpp VulkanProject.cpp)
+set(SOURCES main.cpp 
+    VulkanProject.cpp
+)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES} )
