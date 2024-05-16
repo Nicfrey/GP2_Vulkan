@@ -4,6 +4,7 @@
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 #include  "vulkan/vulkan.h"
 
 struct Vertex
@@ -14,6 +15,13 @@ struct Vertex
 	static VkVertexInputBindingDescription GetBinding();
 
 	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+};
+
+struct UniformBufferObject
+{
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
 };
 
 const std::vector<Vertex> vertices = {

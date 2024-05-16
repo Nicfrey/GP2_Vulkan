@@ -43,6 +43,10 @@ set(SOURCES main.cpp
     Helper/Vertex.h
     Helper/VertexBuffer.h
     Helper/VertexBuffer.cpp
+    Helper/Mesh.h
+    Helper/RectangleMesh.h
+    Helper/Pipeline.h
+    Helper/Pipeline.cpp
 )
 
 # Create the executable

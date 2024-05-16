@@ -1,13 +1,13 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
+#include "GLFW/glfw3.h"
 #define SELECTING_DEVICE 
 #include <optional>
 #include <string>
 #include <vector>
 
-#include "GLFW/glfw3.h"
 #include "Helper/VertexBuffer.h"
-#include "vulkan/vulkan.h"
+#include "Helper/Pipeline.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers{ false };
@@ -86,8 +86,7 @@ private:
 
 	std::vector<VkImageView> m_SwapChainImageViews;
 	VkRenderPass m_RenderPass;
-	VkPipelineLayout m_PipelineLayout;
-	VkPipeline m_GraphicsPipeline;
+	Pipeline m_Pipeline2D;
 
 	VkCommandPool m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
@@ -129,8 +128,6 @@ private:
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	void CreateSwapChain();
 	void CreateImageViews();
-	void CreateGraphicsPipeline();
-	VkShaderModule CreateShaderModule(const std::vector<char>& code);
 	void CreateRenderPass();
 	void CreateFramebuffers();
 	void CreateCommandPool();
