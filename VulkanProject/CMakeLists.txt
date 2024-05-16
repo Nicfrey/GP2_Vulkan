@@ -40,6 +40,8 @@ add_custom_target(
 
 set(SOURCES main.cpp 
     VulkanProject.cpp
+    vertexBuffer/VertexBuffer.h
+    vertexBuffer/VertexBuffer.cpp
 )
 
 # Create the executable

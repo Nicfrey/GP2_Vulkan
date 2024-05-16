@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <fstream>
 
+#include "vertexBuffer/VertexBuffer.h"
+
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDebugUtilsMessengerEXT* pDebugMessenger)
@@ -573,12 +575,16 @@ void VulkanApp::CreateGraphicsPipeline()
 	dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
 
 	// Vertex Input
+	auto bindingDescription{ Vertex::GetBinding() };
+	auto attributeDescriptions{ Vertex::GetAttributeDescriptions() };
+
+
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = nullptr;
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 	// Input Assembly
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
