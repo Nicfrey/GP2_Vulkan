@@ -6,11 +6,13 @@
 #include <vector>
 
 #include "GLFW/glfw3.h"
+#include "Helper/VertexBuffer.h"
 #include "vulkan/vulkan.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers{ false };
 #else
+class VertexBuffer;
 const bool enableValidationLayers{ true };
 #endif
 
@@ -53,6 +55,7 @@ void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create
 class VulkanApp
 {
 public:
+	VulkanApp();
 	void Run();
 	static VkImageView CreateImageView(const VkDevice& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
@@ -74,10 +77,8 @@ private:
 	VkQueue m_GraphicsQueue;
 	VkQueue m_PresentQueue;
 	VkSwapchainKHR m_SwapChain;
-	VkBuffer m_VertexBuffer;
-	VkDeviceMemory m_VertexBufferMemory;
-	VkBuffer m_IndexBuffer;
-	VkDeviceMemory m_IndexBufferMemory;
+	VertexBuffer m_VertexBuffer;
+	IndexBuffer m_IndexBuffer;
 	std::vector<VkImage> m_SwapChainImages;
 	VkFormat m_SwapChainImageFormat;
 	VkExtent2D m_SwapChainExtent;
@@ -146,9 +147,4 @@ private:
 	 */
 	void CleanupSwapChain();
 	static void FrameBufferReziseCallback(GLFWwindow* window, int width, int height);
-	void CreateVertexBuffer();
-	void CreateIndexBuffer();
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 };
