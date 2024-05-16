@@ -5,7 +5,7 @@
 
 #include "Vertex.h"
 
-Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent,VkRenderPass renderPass, const std::string& fileVertex, const std::string& fileFragment)
+Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent, VkRenderPass renderPass, const std::string& fileVertex, const std::string& fileFragment, VkDescriptorSetLayout descriptorLayout,Scene* scene): m_pScene{ scene }
 {
 	auto vertShaderCode{ ReadFile(fileVertex) };
 	auto fragShaderCode{ ReadFile(fileFragment) };
@@ -84,7 +84,7 @@ Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent,VkRenderPass rend
 	rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizerCreateInfo.lineWidth = 1.0f;
 	rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizerCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizerCreateInfo.depthBiasEnable = VK_FALSE;
 
 	VkPipelineMultisampleStateCreateInfo multisamplingCreateInfo{};
@@ -112,6 +112,11 @@ Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent,VkRenderPass rend
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	if(descriptorLayout != VK_NULL_HANDLE)
+	{
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts = &descriptorLayout;
+	}
 
 	VkResult result{ vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) };
 	if (result != VK_SUCCESS)
@@ -146,10 +151,47 @@ Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent,VkRenderPass rend
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
+void Pipeline::InitScene(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
+	VkQueue graphicQueue, VkDescriptorSetLayout descriptorSetLayout) const
+{
+	m_pScene->Init(physicalDevice, device, commandPool, graphicQueue, descriptorSetLayout);
+}
+
 void Pipeline::Cleanup(VkDevice device)
 {
 	vkDestroyPipeline(device, m_GraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(device, m_PipelineLayout, nullptr);
+	m_pScene->Cleanup(device);
+	delete m_pScene;
+	m_pScene = nullptr;
+}
+
+void Pipeline::DrawFrame(VkCommandBuffer commandBuffer,uint32_t currentFrame, VkExtent2D swapChainExtent) const
+{
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(swapChainExtent.width);
+	viewport.height = static_cast<float>(swapChainExtent.height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(commandBuffer
+		, 0, 1, &viewport);
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = swapChainExtent;
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+	// Draw scene
+	m_pScene->Draw(commandBuffer,currentFrame,m_PipelineLayout);
+}
+
+void Pipeline::Update(uint32_t currentFrame, float deltaTime)
+{
+	m_pScene->Update(currentFrame, deltaTime);
 }
 
 std::vector<char> Pipeline::ReadFile(const std::string& filename)

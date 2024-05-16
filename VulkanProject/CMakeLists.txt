@@ -51,8 +51,15 @@ set(SOURCES main.cpp
     Helper/CircleMesh2D.cpp
     Helper/Scene.h
     Helper/Scene.cpp
+    Helper/Camera.h
+    Helper/Camera.cpp
     Helper/Pipeline.h
     Helper/Pipeline.cpp
+    Helper/MathHelpers.h
+    Helper/Mesh2D.h
+    Helper/Mesh2D.cpp
+    Helper/Mesh3D.h
+    Helper/Mesh3D.cpp
 )
 
 # Create the executable

@@ -86,6 +86,7 @@ private:
 	std::vector<VkImageView> m_SwapChainImageViews;
 	VkRenderPass m_RenderPass;
 	Pipeline m_Pipeline2D;
+	Pipeline m_Pipeline3D;
 
 	VkCommandPool m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
@@ -97,12 +98,16 @@ private:
 	bool m_FramebufferResized{ false };
 
 	Scene m_Scene2D{};
+	Scene m_Scene3D{};
+
+	VkDescriptorSetLayout m_DescriptorSetLayout;
 
 	void SetupDebugMessenger();
 	void InitVulkan();
 	void MainLoop();
 	void Cleanup();
 	void InitWindow();
+	void Update(float deltaTime);
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
@@ -144,4 +149,5 @@ private:
 	 */
 	void CleanupSwapChain();
 	static void FrameBufferReziseCallback(GLFWwindow* window, int width, int height);
+	void CreateDescriptorSetLayout();
 };

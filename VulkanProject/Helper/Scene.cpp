@@ -1,30 +1,46 @@
 #include "Helper/Scene.h"
 
-void Scene::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,VkQueue queue)
+#include "Mesh2D.h"
+#include "Mesh3D.h"
+
+void Scene::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorSetLayout)
 {
-	for (auto& mesh : m_Meshes)
+	for (const auto mesh : m_Meshes)
 	{
-		mesh.Init(physicalDevice,device,commandPool,queue);
+		mesh->Init(physicalDevice, device, commandPool, graphicQueue, descriptorSetLayout);
 	}
 }
 
-void Scene::Draw(VkCommandBuffer commandBuffer) const
+void Scene::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame , VkPipelineLayout pipelineLayout)
 {
-	for (auto& mesh : m_Meshes)
+	for (const auto& mesh : m_Meshes)
 	{
-		mesh.Draw(commandBuffer);
+		mesh->Draw(commandBuffer, currentFrame, pipelineLayout);
+	}
+}
+
+void Scene::Update(uint32_t currentImage, float deltaTime)
+{
+	for (auto mesh : m_Meshes)
+	{
+		if(Mesh3D* mesh3D{dynamic_cast<Mesh3D*>(mesh)})
+		{
+			mesh3D->Update(currentImage,deltaTime);
+		}
 	}
 }
 
 void Scene::Cleanup(VkDevice device) const
 {
-	for (auto& mesh : m_Meshes)
+	for (auto mesh : m_Meshes)
 	{
-		mesh.Cleanup(device);
+		mesh->Cleanup(device);
+		delete mesh;
+		mesh = nullptr;
 	}
 }
 
-void Scene::AddMesh(const Mesh& mesh)
+void Scene::AddMesh(Mesh* mesh)
 {
 	m_Meshes.emplace_back(mesh);
 }

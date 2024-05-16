@@ -40,25 +40,3 @@ size_t Mesh::GetIndicesSize() const
 {
 	return m_Indices.size();
 }
-
-void Mesh::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue)
-{
-	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
-	m_VertexBuffer = VertexBuffer(physicalDevice, device, commandPool, graphicQueue, vertexBufferSize, m_Vertices.data());
-
-	const VkDeviceSize indexBufferSize{ GetIndicesSizeInByte() };
-	m_IndexBuffer = IndexBuffer(physicalDevice, device, commandPool, graphicQueue, indexBufferSize, m_Indices.data());
-}
-
-void Mesh::Draw(VkCommandBuffer commandBuffer) const
-{
-	m_VertexBuffer.BindVertexBuffer(commandBuffer);
-	m_IndexBuffer.BindIndexBuffer(commandBuffer, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
-}
-
-void Mesh::Cleanup(VkDevice device) const
-{
-	m_VertexBuffer.Cleanup(device);
-	m_IndexBuffer.Cleanup(device);
-}

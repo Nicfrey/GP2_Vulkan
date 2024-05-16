@@ -16,13 +16,10 @@ public:
 	size_t GetVerticesSize() const;
 	size_t GetIndicesSizeInByte() const;
 	size_t GetIndicesSize() const;
-	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue);
-	void Draw(VkCommandBuffer commandBuffer) const;
-	void Cleanup(VkDevice device) const;
-private:
+	virtual void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorSetLayout){}
+	virtual void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const {}
+	virtual void Cleanup(VkDevice device) const {}
+protected:
 	std::vector<uint32_t> m_Indices;
 	std::vector<Vertex2D> m_Vertices;
-
-	VertexBuffer m_VertexBuffer;
-	IndexBuffer m_IndexBuffer;
 };

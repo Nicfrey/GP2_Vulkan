@@ -11,13 +11,13 @@ public:
 	VkDeviceMemory& GetBufferMemory();
 	void Cleanup(VkDevice device) const;
 
-protected:
-	VkBuffer m_Buffer;
-	VkDeviceMemory m_DeviceMemory;
-
 	static void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	static uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	static void CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+protected:
+	VkBuffer m_Buffer;
+	VkDeviceMemory m_DeviceMemory;
 };
 
 class VertexBuffer final : public DataBuffer

@@ -19,3 +19,19 @@ RectangleMesh2D::RectangleMesh2D(const glm::vec2& bottomLeft, float width, float
 	AddIndex(3);
 	AddIndex(0);
 }
+
+void RectangleMesh2D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
+	VkQueue graphicQueue, VkDescriptorSetLayout descriptorSetLayout)
+{
+	Mesh2D::Init(physicalDevice, device, commandPool, graphicQueue,descriptorSetLayout);
+}
+
+void RectangleMesh2D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const
+{
+	Mesh2D::Draw(commandBuffer, currentFrame, pipelineLayout);
+}
+
+void RectangleMesh2D::Cleanup(VkDevice device) const
+{
+	Mesh2D::Cleanup(device);
+}
