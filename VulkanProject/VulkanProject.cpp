@@ -77,6 +77,7 @@ void VulkanApp::SetupDebugMessenger()
 
 void VulkanApp::InitVulkan()
 {
+
 	InitWindow();
 	CreateInstance();
 	SetupDebugMessenger();
@@ -91,8 +92,10 @@ void VulkanApp::InitVulkan()
 	m_Pipeline2D = Pipeline{m_Device,m_SwapChainExtent,m_RenderPass,"shaders/shader.vert.spv","shaders/shader.frag.spv"};
 	CreateFramebuffers();
 	CreateCommandPool();
-	m_VertexBuffer = VertexBuffer{ m_PhysicalDevice,m_Device,m_CommandPool,m_GraphicsQueue,sizeof(vertices[0]) * vertices.size(),vertices.data()};
-	m_IndexBuffer = IndexBuffer{ m_PhysicalDevice,m_Device,m_CommandPool,m_GraphicsQueue,sizeof(indices[0]) * indices.size(),indices.data()};
+
+	m_RectangleMesh2D = RectangleMesh2D{ {-0.5f,-0.5f},1.f,1.f,{1.f,0.f,0.f} };
+	m_RectangleMesh2D.Init(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+
 	CreateCommandBuffer();
 	CreateSyncObjects();
 }
@@ -111,8 +114,7 @@ void VulkanApp::Cleanup()
 {
 	CleanupSwapChain();
 
-	m_IndexBuffer.Cleanup(m_Device);
-	m_VertexBuffer.Cleanup(m_Device);
+	m_RectangleMesh2D.Cleanup(m_Device);
 	m_Pipeline2D.Cleanup(m_Device);
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
 
@@ -744,10 +746,7 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	scissor.extent = m_SwapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	m_VertexBuffer.BindVertexBuffer(commandBuffer);
-	m_IndexBuffer.BindIndexBuffer(commandBuffer,VK_INDEX_TYPE_UINT32);
-
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0,0);
+	m_RectangleMesh2D.Draw(commandBuffer);
 
 	vkCmdEndRenderPass(commandBuffer);
 

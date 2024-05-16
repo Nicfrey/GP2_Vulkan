@@ -44,7 +44,9 @@ set(SOURCES main.cpp
     Helper/VertexBuffer.h
     Helper/VertexBuffer.cpp
     Helper/Mesh.h
-    Helper/RectangleMesh.h
+    Helper/Mesh.cpp
+    Helper/RectangleMesh2D.h
+    Helper/RectangleMesh2D.cpp
     Helper/Pipeline.h
     Helper/Pipeline.cpp
 )

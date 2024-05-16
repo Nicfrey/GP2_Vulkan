@@ -8,6 +8,7 @@
 
 #include "Helper/VertexBuffer.h"
 #include "Helper/Pipeline.h"
+#include "Helper/RectangleMesh2D.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers{ false };
@@ -77,8 +78,6 @@ private:
 	VkQueue m_GraphicsQueue;
 	VkQueue m_PresentQueue;
 	VkSwapchainKHR m_SwapChain;
-	VertexBuffer m_VertexBuffer;
-	IndexBuffer m_IndexBuffer;
 	std::vector<VkImage> m_SwapChainImages;
 	VkFormat m_SwapChainImageFormat;
 	VkExtent2D m_SwapChainExtent;
@@ -97,6 +96,7 @@ private:
 	uint32_t m_CurrentFrame{ 0 };
 	bool m_FramebufferResized{ false };
 
+	RectangleMesh2D m_RectangleMesh2D;
 
 	void SetupDebugMessenger();
 	void InitVulkan();
