@@ -74,6 +74,8 @@ private:
 	VkQueue m_GraphicsQueue;
 	VkQueue m_PresentQueue;
 	VkSwapchainKHR m_SwapChain;
+	VkBuffer m_VertexBuffer;
+	VkDeviceMemory m_VertexBufferMemory;
 	std::vector<VkImage> m_SwapChainImages;
 	VkFormat m_SwapChainImageFormat;
 	VkExtent2D m_SwapChainExtent;
@@ -142,4 +144,6 @@ private:
 	 */
 	void CleanupSwapChain();
 	static void FrameBufferReziseCallback(GLFWwindow* window, int width, int height);
+	void CreateVertexBuffer();
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 };

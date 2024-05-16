@@ -1,11 +1,10 @@
 #pragma once
 #include <array>
+#include <vector>
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
-
-class VkVertexInputBindingDescription;
-class VkVertexInputAttributeDescription;
+#include  "vulkan/vulkan.h"
 
 struct Vertex
 {
@@ -15,4 +14,10 @@ struct Vertex
 	static VkVertexInputBindingDescription GetBinding();
 
 	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+};
+
+const std::vector<Vertex> vertices = {
+	{{0.f,-0.5f}, {1.f,0.f,0.f}},
+	{{0.5f,0.5f},{0.f,1.f,0.f}},
+	{{-0.5f,0.5f},{0.f,0.f,1.f}}
 };

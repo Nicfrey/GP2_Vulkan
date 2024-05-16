@@ -1,5 +1,4 @@
 #include "vertexBuffer/VertexBuffer.h"
-#include "vulkan/vulkan.h"
 
 VkVertexInputBindingDescription Vertex::GetBinding()
 {
@@ -31,6 +30,6 @@ std::array<VkVertexInputAttributeDescription, 2> Vertex::GetAttributeDescription
 	attributeDescriptions[1].binding = 0;
 	attributeDescriptions[1].location = 1;
 	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(Vertex, pos);
+	attributeDescriptions[1].offset = offsetof(Vertex, color);
 	return attributeDescriptions;
 }

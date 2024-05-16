@@ -87,6 +87,7 @@ void VulkanApp::InitVulkan()
 	CreateGraphicsPipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
+	CreateVertexBuffer();
 	CreateCommandBuffer();
 	CreateSyncObjects();
 }
@@ -105,6 +106,8 @@ void VulkanApp::Cleanup()
 {
 	CleanupSwapChain();
 
+	vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+	vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
 	vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
@@ -893,7 +896,12 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	scissor.extent = m_SwapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+	VkBuffer vertexBuffers[] = { m_VertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+	vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -1028,4 +1036,58 @@ void VulkanApp::FrameBufferReziseCallback(GLFWwindow* window, int width, int hei
 {
 	auto app{ reinterpret_cast<VulkanApp*>(glfwGetWindowUserPointer(window)) };
 	app->m_FramebufferResized = true;
+}
+
+void VulkanApp::CreateVertexBuffer()
+{
+	VkBufferCreateInfo bufferCreateInfo{};
+	bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferCreateInfo.size = sizeof(vertices[0]) * vertices.size(); // size of the buffer
+	bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	VkResult result{ vkCreateBuffer(m_Device,&bufferCreateInfo,nullptr,&m_VertexBuffer) };
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Vertex buffer not correclty initialized");
+	}
+
+	// buffer created but it has no memory assigned to it
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(m_Device, m_VertexBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	result = vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_VertexBufferMemory);
+	if(result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to locate vertex buffer memory");
+	}
+
+	vkBindBufferMemory(m_Device, m_VertexBuffer, m_VertexBufferMemory, 0);
+
+	void* data;
+	vkMapMemory(m_Device, m_VertexBufferMemory, 0, bufferCreateInfo.size, 0, &data);
+	memcpy(data, vertices.data(), bufferCreateInfo.size);
+	vkUnmapMemory(m_Device, m_VertexBufferMemory);
+}
+
+uint32_t VulkanApp::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &memProperties);
+
+	for(uint32_t i{}; i < memProperties.memoryTypeCount; ++i)
+	{
+		if(typeFilter & (1 << i) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type");
 }
