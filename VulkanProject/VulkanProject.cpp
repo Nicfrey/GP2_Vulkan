@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <fstream>
 
+#include "Helper/CircleMesh2D.h"
+#include "Helper/RectangleMesh2D.h"
 #include "Helper/Vertex.h"
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -93,8 +95,9 @@ void VulkanApp::InitVulkan()
 	CreateFramebuffers();
 	CreateCommandPool();
 
-	m_RectangleMesh2D = RectangleMesh2D{ {-0.5f,-0.5f},1.f,1.f,{1.f,0.f,0.f} };
-	m_RectangleMesh2D.Init(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+	m_Scene2D.AddMesh(RectangleMesh2D{ {-0.75f,-0.75f},1.f,1.f,{1.f,0.f,0.f} });
+	m_Scene2D.AddMesh(CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
+	m_Scene2D.Init(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 
 	CreateCommandBuffer();
 	CreateSyncObjects();
@@ -114,7 +117,7 @@ void VulkanApp::Cleanup()
 {
 	CleanupSwapChain();
 
-	m_RectangleMesh2D.Cleanup(m_Device);
+	m_Scene2D.Cleanup(m_Device);
 	m_Pipeline2D.Cleanup(m_Device);
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
 
@@ -746,7 +749,8 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	scissor.extent = m_SwapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	m_RectangleMesh2D.Draw(commandBuffer);
+	// Draw meshes
+	m_Scene2D.Draw(commandBuffer);
 
 	vkCmdEndRenderPass(commandBuffer);
 

@@ -8,7 +8,7 @@
 
 #include "Helper/VertexBuffer.h"
 #include "Helper/Pipeline.h"
-#include "Helper/RectangleMesh2D.h"
+#include "Helper/Scene.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers{ false };
@@ -96,7 +96,7 @@ private:
 	uint32_t m_CurrentFrame{ 0 };
 	bool m_FramebufferResized{ false };
 
-	RectangleMesh2D m_RectangleMesh2D;
+	Scene m_Scene2D{};
 
 	void SetupDebugMessenger();
 	void InitVulkan();

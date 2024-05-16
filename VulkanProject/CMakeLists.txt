@@ -47,6 +47,10 @@ set(SOURCES main.cpp
     Helper/Mesh.cpp
     Helper/RectangleMesh2D.h
     Helper/RectangleMesh2D.cpp
+    Helper/CircleMesh2D.h
+    Helper/CircleMesh2D.cpp
+    Helper/Scene.h
+    Helper/Scene.cpp
     Helper/Pipeline.h
     Helper/Pipeline.cpp
 )
