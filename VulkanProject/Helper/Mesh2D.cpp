@@ -1,5 +1,30 @@
 #include "Helper/Mesh2D.h"
 
+void Mesh2D::AddVertex(const Vertex2D& vertex)
+{
+	m_Vertices.push_back(vertex);
+}
+
+void Mesh2D::AddVertex(const glm::vec2& position, const glm::vec3& color)
+{
+	m_Vertices.push_back({ position, color });
+}
+
+void Mesh2D::AddVertex(const glm::vec2& position)
+{
+	m_Vertices.push_back({ position, glm::vec3(1.0f) });
+}
+
+size_t Mesh2D::GetVerticesSizeInByte() const
+{
+	return m_Vertices.size() * sizeof(Vertex2D);
+}
+
+size_t Mesh2D::GetVerticesSize() const
+{
+	return m_Vertices.size();
+}
+
 void Mesh2D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue,VkDescriptorSetLayout descriptorSetLayout)
 {
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };

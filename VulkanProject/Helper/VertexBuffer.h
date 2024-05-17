@@ -14,7 +14,8 @@ public:
 	static void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	static uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	static void CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
+	static VkCommandBuffer BeginSingleTimeCommands(VkDevice device, VkCommandPool commandPool);
+	static void EndSingleTimeCommands(VkCommandBuffer commandBuffer, VkDevice device, VkQueue queue, VkCommandPool commandPool);
 protected:
 	VkBuffer m_Buffer;
 	VkDeviceMemory m_DeviceMemory;

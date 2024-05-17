@@ -4,12 +4,12 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-Mesh3D::Mesh3D(int maxFrameInFlight): m_MaxFrameInFlight{ maxFrameInFlight }
+Mesh3D::Mesh3D(int maxFrameInFlight, const std::string& texture): m_MaxFrameInFlight{ maxFrameInFlight }, m_TextureImage{ texture }
 {
-	AddVertex({ {-0.5f,-0.5f}, {1.f,0.f,0.f} });
-	AddVertex({ {0.5f,-0.5f},{0.f,1.f,0.f} });
-	AddVertex({ {0.5f,0.5f},{0.f,0.f,1.f} });
-	AddVertex({ {-0.5f,0.5f},{1.f,1.f,1.f} });
+	AddVertex( {-0.5f,-0.5f}, {1.f,0.f,0.f} , {1.0f,0.f} );
+	AddVertex( {0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f} );
+	AddVertex( {0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f} );
+	AddVertex( {-0.5f,0.5f},{1.f,1.f,1.f}, {1.f,1.f} );
 	AddIndex(0);
 	AddIndex(1);
 	AddIndex(2);
@@ -20,21 +20,26 @@ Mesh3D::Mesh3D(int maxFrameInFlight): m_MaxFrameInFlight{ maxFrameInFlight }
 
 void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout)
 {
+	m_TextureImage.Init(device, physicalDevice, commandPool, graphicQueue);
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
 	m_VertexBuffer = VertexBuffer(physicalDevice, device, commandPool, graphicQueue, vertexBufferSize, m_Vertices.data());
 
 	const VkDeviceSize indexBufferSize{ GetIndicesSizeInByte() };
 	m_IndexBuffer = IndexBuffer(physicalDevice, device, commandPool, graphicQueue, indexBufferSize, m_Indices.data());
+
 	CreateUniformBuffers(physicalDevice, device);
-	VkDescriptorPoolSize poolSize{};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast<uint32_t>(m_MaxFrameInFlight);
+
+	// CreateDescriptorPool
+	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[0].descriptorCount = static_cast<uint32_t>(m_MaxFrameInFlight);
+	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[1].descriptorCount = static_cast<uint32_t>(m_MaxFrameInFlight);
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
-
+	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(m_MaxFrameInFlight);
 
 	VkResult result{ vkCreateDescriptorPool(device, &poolInfo, nullptr, &m_DescriptorPool) };
@@ -43,6 +48,7 @@ void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPoo
 		throw std::runtime_error("Failed to create descriptor pool");
 	}
 
+	// CreateDescriptorSets
 	const std::vector layouts(m_MaxFrameInFlight, descriptorLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -64,16 +70,30 @@ void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPoo
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = m_DescriptorSets[i];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pBufferInfo = &bufferInfo;
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = m_TextureImage.GetTextureImageView();
+		imageInfo.sampler = m_TextureImage.GetTextureSampler();
+		
 
-		vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet = m_DescriptorSets[i];
+		descriptorWrites[0].dstBinding = 0;
+		descriptorWrites[0].dstArrayElement = 0;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount = 1;
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[1].dstSet = m_DescriptorSets[i];
+		descriptorWrites[1].dstBinding = 1;
+		descriptorWrites[1].dstArrayElement = 0;
+		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[1].descriptorCount = 1;
+		descriptorWrites[1].pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 
 }
@@ -98,6 +118,7 @@ void Mesh3D::Update(uint32_t currentImage, float deltaTime)
 
 void Mesh3D::Cleanup(VkDevice device) const
 {
+	m_TextureImage.Cleanup(device);
 	m_VertexBuffer.Cleanup(device);
 	m_IndexBuffer.Cleanup(device);
 	vkDestroyDescriptorPool(device, m_DescriptorPool, nullptr);
@@ -106,6 +127,36 @@ void Mesh3D::Cleanup(VkDevice device) const
 		vkDestroyBuffer(device, m_UniformBuffers[i], nullptr);
 		vkFreeMemory(device, m_UniformBuffersMemory[i], nullptr);
 	}
+}
+
+void Mesh3D::AddVertex(const Vertex3D& vertex)
+{
+	m_Vertices.push_back(vertex);
+}
+
+void Mesh3D::AddVertex(const glm::vec2& position, const glm::vec3& color)
+{
+	m_Vertices.push_back({ position, color });
+}
+
+void Mesh3D::AddVertex(const glm::vec2& position)
+{
+	m_Vertices.push_back({ position, {1.f,1.f,1.f} });
+}
+
+void Mesh3D::AddVertex(const glm::vec2& position, const glm::vec3& color, const glm::vec2& textCoord)
+{
+	m_Vertices.push_back({ position, color, textCoord });
+}
+
+size_t Mesh3D::GetVerticesSizeInByte() const
+{
+	return m_Vertices.size() * sizeof(Vertex3D);
+}
+
+size_t Mesh3D::GetVerticesSize() const
+{
+	return m_Vertices.size();
 }
 
 void Mesh3D::CreateUniformBuffers(VkPhysicalDevice physicalDevice, VkDevice device)

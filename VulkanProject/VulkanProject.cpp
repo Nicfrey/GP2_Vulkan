@@ -9,6 +9,7 @@
 #include <fstream>
 #include <chrono>
 
+#include "Helper/Helper.h"
 #include "Helper/CircleMesh2D.h"
 #include "Helper/Mesh3D.h"
 #include "Helper/RectangleMesh2D.h"
@@ -86,7 +87,7 @@ void VulkanApp::InitVulkan()
 	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
 
 	Scene* pScene3D{new Scene{}};
-	pScene3D->AddMesh(new Mesh3D{MAX_FRAMES_IN_FLIGHT});
+	pScene3D->AddMesh(new Mesh3D{MAX_FRAMES_IN_FLIGHT,"TestTexture.jpg" });
 
 	InitWindow();
 	CreateInstance();
@@ -569,8 +570,7 @@ void VulkanApp::CreateImageViews()
 
 	for (size_t i = 0; i < m_SwapChainImages.size(); i++)
 	{
-		m_SwapChainImageViews[i] = CreateImageView(m_Device, m_SwapChainImages[i], m_SwapChainImageFormat,
-		                                           VK_IMAGE_ASPECT_COLOR_BIT);
+		m_SwapChainImageViews[i] = TextureImage::CreateImageView(m_SwapChainImages[i], m_SwapChainImageFormat, m_Device);
 	}
 }
 
@@ -900,10 +900,18 @@ void VulkanApp::CreateDescriptorSetLayout()
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uboLayoutBinding.pImmutableSamplers = nullptr; // For image sampling
 
+	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers  = nullptr;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.pBindings = bindings.data();
 
 	VkResult result{vkCreateDescriptorSetLayout(m_Device, &layoutInfo, nullptr, &m_DescriptorSetLayout)};
 	if (result != VK_SUCCESS)

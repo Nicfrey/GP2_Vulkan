@@ -39,8 +39,8 @@ Pipeline::Pipeline(VkDevice device, VkExtent2D swapChainExtent, VkRenderPass ren
 	dynamicStateCreateInfo.pDynamicStates = dynamicStates.data();
 
 	// Vertex Input
-	auto bindingDescription{ Vertex2D::GetBinding() };
-	auto attributeDescriptions{ Vertex2D::GetAttributeDescriptions() };
+	auto bindingDescription{ Vertex3D::GetBinding() };
+	auto attributeDescriptions{ Vertex3D::GetAttributeDescriptions() }; // TODO Need to change
 
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};

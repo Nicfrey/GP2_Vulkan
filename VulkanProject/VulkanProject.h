@@ -1,7 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-#define SELECTING_DEVICE 
+#define SELECTING_DEVICE
 #include <optional>
 #include <string>
 #include <vector>
@@ -9,6 +9,7 @@
 #include "Helper/VertexBuffer.h"
 #include "Helper/Pipeline.h"
 #include "Helper/Scene.h"
+#include "Helper/TextureImage.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers{ false };
@@ -99,6 +100,7 @@ private:
 
 	Scene m_Scene2D{};
 	Scene m_Scene3D{};
+	TextureImage textureImage{};
 
 	VkDescriptorSetLayout m_DescriptorSetLayout;
 

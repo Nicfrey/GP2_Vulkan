@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include "Helper.h"
 #include "Vertex.h"
 
 VkBuffer& DataBuffer::GetBuffer()
@@ -70,6 +71,17 @@ uint32_t DataBuffer::FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t ty
 
 void DataBuffer::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 {
+	const VkCommandBuffer commandBuffer{ BeginSingleTimeCommands(device,commandPool) };
+
+	VkBufferCopy copyRegion{};
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	EndSingleTimeCommands(commandBuffer, device, graphicQueue, commandPool);
+}
+
+VkCommandBuffer DataBuffer::BeginSingleTimeCommands(VkDevice device, VkCommandPool commandPool)
+{
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -82,11 +94,15 @@ void DataBuffer::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue 
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
 	vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-	VkBufferCopy copyRegion{};
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	return commandBuffer;
+}
+
+void DataBuffer::EndSingleTimeCommands(VkCommandBuffer commandBuffer, VkDevice device, VkQueue queue,
+	VkCommandPool commandPool)
+{
 	vkEndCommandBuffer(commandBuffer);
 
 	VkSubmitInfo submitInfo{};
@@ -94,8 +110,8 @@ void DataBuffer::CopyBuffer(VkDevice device, VkCommandPool commandPool, VkQueue 
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	vkQueueSubmit(graphicQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(graphicQueue);
+	vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(queue);
 
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }

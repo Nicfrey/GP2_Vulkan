@@ -30,6 +30,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(
+	stb
+	GIT_REPOSITORY https://github.com/nothings/stb.git
+	GIT_TAG master
+)
+
+FetchContent_MakeAvailable(stb)
+
 find_package(Vulkan REQUIRED)
 find_package(Doxygen REQUIRED)
 

@@ -60,6 +60,9 @@ set(SOURCES main.cpp
     Helper/Mesh2D.cpp
     Helper/Mesh3D.h
     Helper/Mesh3D.cpp
+    Helper/TextureImage.h
+    Helper/TextureImage.cpp
+    Helper/Helper.h
 )
 
 # Create the executable
@@ -67,5 +70,6 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES} )
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
