@@ -12,7 +12,7 @@ public:
 	TextureImage(const std::string& path, VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool,
 	             VkQueue graphicsQueue);
 
-	void Init(std::string path, VkDevice device, VkPhysicalDevice physicalDevice,
+	void Init(VkDevice device, VkPhysicalDevice physicalDevice,
 	          VkCommandPool commandPool, VkQueue graphicsQueue);
 	void Cleanup(VkDevice device) const;
 	bool HasTexture() const { return !m_TexturePath.empty(); }

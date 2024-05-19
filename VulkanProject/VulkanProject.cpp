@@ -89,8 +89,12 @@ void VulkanApp::InitVulkan()
 	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
 
 	Scene* pScene3D{new Scene{}};
-	pScene3D->AddMesh(new CubeMesh{ });
-	pScene3D->AddMesh(new MeshObj{ "vehicle.obj" });
+	CubeMesh* pCubeMesh{new CubeMesh{}};
+	pCubeMesh->SetTextureImage("TestTexture.jpg");
+	pScene3D->AddMesh(pCubeMesh);
+	MeshObj* pMeshObj{new MeshObj{"vehicle.obj"}};
+	pMeshObj->SetTextureImage("vehicle_diffuse.png");
+	pScene3D->AddMesh(pMeshObj);
 
 
 	InitWindow();
@@ -109,11 +113,8 @@ void VulkanApp::InitVulkan()
 	CreateDepthResources();
 	CreateFramebuffers();
 
-	m_TextureImage.Init("TestTexture.jpg", m_Device, m_PhysicalDevice, m_CommandPool, m_GraphicsQueue);
-	m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, MAX_FRAMES_IN_FLIGHT);
-	m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, MAX_FRAMES_IN_FLIGHT);
-	m_Pipeline3D.CreateDescriptorSets(m_Device,m_TextureImage);
-	m_Pipeline2D.CreateDescriptorSets(m_Device, m_TextureImage);
+	m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, Helper::MAX_FRAMES_IN_FLIGHT);
+	m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, Helper::MAX_FRAMES_IN_FLIGHT);
 	
 	m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 	m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
@@ -147,7 +148,7 @@ void VulkanApp::Cleanup()
 
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
 
-	for(size_t i{}; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	for(size_t i{}; i < Helper::MAX_FRAMES_IN_FLIGHT; ++i)
 	{
 		vkDestroySemaphore(m_Device, m_ImageAvailableSemaphores[i], nullptr);
 		vkDestroySemaphore(m_Device, m_RenderFinishedSemaphores[i], nullptr);
@@ -692,7 +693,7 @@ void VulkanApp::CreateCommandPool()
 
 void VulkanApp::CreateCommandBuffer()
 {
-	m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	m_CommandBuffers.resize(Helper::MAX_FRAMES_IN_FLIGHT);
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = m_CommandPool;
@@ -853,14 +854,14 @@ void VulkanApp::DrawFrame()
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
 	vkQueuePresentKHR(m_PresentQueue, &presentInfo);
-	m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	m_CurrentFrame = (m_CurrentFrame + 1) % Helper::MAX_FRAMES_IN_FLIGHT;
 }
 
 void VulkanApp::CreateSyncObjects()
 {
-	m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+	m_ImageAvailableSemaphores.resize(Helper::MAX_FRAMES_IN_FLIGHT);
+	m_RenderFinishedSemaphores.resize(Helper::MAX_FRAMES_IN_FLIGHT);
+	m_InFlightFences.resize(Helper::MAX_FRAMES_IN_FLIGHT);
 
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -869,7 +870,7 @@ void VulkanApp::CreateSyncObjects()
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	for (size_t i{}; i < MAX_FRAMES_IN_FLIGHT; ++i)
+	for (size_t i{}; i < Helper::MAX_FRAMES_IN_FLIGHT; ++i)
 	{
 		if (vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr,&m_ImageAvailableSemaphores[i]) != VK_SUCCESS ||
 			vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS ||

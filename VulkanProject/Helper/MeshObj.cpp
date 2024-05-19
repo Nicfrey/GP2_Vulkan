@@ -163,3 +163,19 @@ bool MeshObj::LoadObj(const std::string& filename, std::vector<Vertex3D>& vertic
 
 	return true;
 }
+
+void MeshObj::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue,
+	VkDescriptorSetLayout descriptorLayout)
+{
+	Mesh3D::Init(physicalDevice, device, commandPool, graphicQueue, descriptorLayout);
+}
+
+void MeshObj::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const
+{
+	Mesh3D::Draw(commandBuffer, currentFrame, pipelineLayout);
+}
+
+void MeshObj::Cleanup(VkDevice device) const
+{
+	Mesh3D::Cleanup(device);
+}

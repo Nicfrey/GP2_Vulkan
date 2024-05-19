@@ -1,5 +1,6 @@
 #pragma once
 #include <iosfwd>
+#include <memory>
 #include <vector>
 #include <vector>
 
@@ -10,7 +11,7 @@
 class Descriptor
 {
 public:
-	Descriptor(VkDevice device, size_t count);
+	Descriptor(VkDevice device);
 	~Descriptor() = default;
 	VkDescriptorPool GetDescriptorPool() const;
 
@@ -21,10 +22,9 @@ public:
 
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame) const;
 	void Cleanup(VkDevice device) const;
-	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, std::vector<DataBuffer>& buffers, const TextureImage&
-	                          textureImage);
+	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, std::vector<DataBuffer>& buffers, const std::unique_ptr<
+	                          TextureImage>& textureImage);
 private:
-	size_t m_MaxFrameInFlight;
 	std::vector<VkDescriptorSet> m_DescriptorSets;
 	VkDescriptorPool m_DescriptorPool;
 };

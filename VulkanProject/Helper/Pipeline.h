@@ -35,14 +35,14 @@ public:
 	VkPipeline& GetPipeline() { return m_GraphicsPipeline; }
 	VkPipelineLayout& GetPipelineLayout() { return m_PipelineLayout; }
 	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
-	void CreateDescriptorSets(VkDevice device, const TextureImage& textureImage) const;
 
 private:
 	static std::vector<char> ReadFile(const std::string& filename);
 	static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
-	std::unique_ptr<Shader> m_Shader;
+	void CreateDescriptorSetLayout(VkDevice device);
 	VkPipelineLayout m_PipelineLayout;
 	VkPipeline m_GraphicsPipeline;
+	VkDescriptorSetLayout m_DescriptorSetLayout;
 	Scene* m_pScene;
 };
 
@@ -50,9 +50,8 @@ template <typename T, typename T0>
 void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physicalDevice,VkExtent2D swapChainExtent, VkRenderPass renderPass, VkCommandPool commandPool, VkQueue graphicsQueue,
 	const std::string& fileVertex, const std::string& fileFragment, Scene* scene, size_t frames)
 {
-	m_Shader = std::make_unique<Shader>();
-	m_Shader->Initialize(device, physicalDevice, static_cast<int>(frames));
 	m_pScene = scene;
+	CreateDescriptorSetLayout(device);
 	auto vertShaderCode{ ReadFile(fileVertex) };
 	auto fragShaderCode{ ReadFile(fileFragment) };
 
@@ -87,7 +86,6 @@ void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physic
 	// Vertex Input
 	auto bindingDescription{ T::GetBinding() };
 	auto attributeDescriptions{ T::GetAttributeDescriptions() };
-
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -168,7 +166,7 @@ void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physic
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.setLayoutCount = 1;
-	pipelineLayoutCreateInfo.pSetLayouts = &m_Shader->GetDescriptorSetLayout();
+	pipelineLayoutCreateInfo.pSetLayouts = &m_DescriptorSetLayout;
 
 	VkResult result{ vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &m_PipelineLayout) };
 	if (result != VK_SUCCESS)
@@ -221,13 +219,13 @@ template <typename T, typename T0>
 void Pipeline<T, T0>::InitScene(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
 	VkQueue graphicQueue) const
 {
-	m_pScene->Init(physicalDevice, device, commandPool, graphicQueue, m_Shader->GetDescriptorSetLayout());
+	m_pScene->Init(physicalDevice, device, commandPool, graphicQueue, m_DescriptorSetLayout);
 }
 
 template <typename T, typename T0>
 void Pipeline<T, T0>::Cleanup(VkDevice device)
 {
-	m_Shader->Cleanup(device);
+	vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr);
 	vkDestroyPipeline(device, m_GraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(device, m_PipelineLayout, nullptr);
 	m_pScene->Cleanup(device);
@@ -238,7 +236,6 @@ void Pipeline<T, T0>::Cleanup(VkDevice device)
 template <typename T, typename T0>
 void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkExtent2D swapChainExtent) const
 {
-
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
 	VkViewport viewport{};
@@ -256,8 +253,6 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 	scissor.extent = swapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-	m_Shader->BindDescriptorSets(commandBuffer, m_PipelineLayout, currentFrame);
-
 	// Draw scene
 	m_pScene->Draw(commandBuffer, currentFrame, m_PipelineLayout);
 }
@@ -265,14 +260,7 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 template <typename T, typename T0>
 void Pipeline<T, T0>::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent)
 {
-	m_Shader->Update(currentFrame, deltaTime, swapchainExtent);
-	m_pScene->Update(currentFrame, deltaTime);
-}
-
-template <typename T, typename T0>
-void Pipeline<T, T0>::CreateDescriptorSets(VkDevice device, const TextureImage& textureImage) const
-{
-	m_Shader->CreateDescriptorSets(device, m_Shader->GetDescriptorSetLayout(),textureImage);
+	m_pScene->Update(currentFrame, deltaTime, swapchainExtent);
 }
 
 template <typename T, typename T0>
@@ -311,4 +299,34 @@ VkShaderModule Pipeline<T, T0>::CreateShaderModule(VkDevice device, const std::v
 	}
 
 	return shaderModule;
+}
+
+template <typename T, typename T0>
+void Pipeline<T, T0>::CreateDescriptorSetLayout(VkDevice device)
+{
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	uboLayoutBinding.pImmutableSamplers = nullptr; // For image sampling
+
+	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers = nullptr;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.pBindings = bindings.data();
+
+	VkResult result{ vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &m_DescriptorSetLayout) };
+	if (result != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create descriptor set layout!");
+	}
 }

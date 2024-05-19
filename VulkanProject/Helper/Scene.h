@@ -17,7 +17,7 @@ public:
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout
 	          descriptorSetLayout);
 	void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout);
-	void Update(uint32_t currentImage, float deltaTime);
+	void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent);
 	void Cleanup(VkDevice device) const;
 	void AddMesh(Mesh* mesh);
 private:
