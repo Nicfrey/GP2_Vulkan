@@ -87,7 +87,8 @@ void VulkanApp::InitVulkan()
 	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
 
 	Scene* pScene3D{new Scene{}};
-	pScene3D->AddMesh(new Mesh3D{MAX_FRAMES_IN_FLIGHT,"TestTexture.jpg" });
+	pScene3D->AddMesh(new Mesh3D{ });
+
 
 	InitWindow();
 	CreateInstance();
@@ -100,13 +101,18 @@ void VulkanApp::InitVulkan()
 	CreateSwapChain();
 	CreateImageViews();
 	CreateRenderPass();
-	CreateDescriptorSetLayout();
-	m_Pipeline2D = Pipeline{m_Device,m_SwapChainExtent,m_RenderPass,"shaders/shader.vert.spv","shaders/shader.frag.spv",VK_NULL_HANDLE, pScene2D};
-	m_Pipeline3D = Pipeline{m_Device,m_SwapChainExtent,m_RenderPass,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv",m_DescriptorSetLayout,pScene3D};
+
 	CreateFramebuffers();
 	CreateCommandPool();
-	m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue, m_DescriptorSetLayout);
-	m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue, m_DescriptorSetLayout);
+
+	m_TextureImage.Init("TestTexture.jpg", m_Device, m_PhysicalDevice, m_CommandPool, m_GraphicsQueue);
+	m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, MAX_FRAMES_IN_FLIGHT);
+	m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, MAX_FRAMES_IN_FLIGHT);
+	m_Pipeline3D.CreateDescriptorSets(m_Device,m_TextureImage);
+	m_Pipeline2D.CreateDescriptorSets(m_Device, m_TextureImage);
+	
+	m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+	m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 
 	CreateCommandBuffer();
 	CreateSyncObjects();
@@ -131,7 +137,6 @@ void VulkanApp::Cleanup()
 {
 	CleanupSwapChain();
 
-	vkDestroyDescriptorSetLayout(m_Device, m_DescriptorSetLayout, nullptr);
 	m_Pipeline2D.Cleanup(m_Device);
 	m_Pipeline3D.Cleanup(m_Device);
 
@@ -753,7 +758,8 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	//m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+
 	m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
 
 	vkCmdEndRenderPass(commandBuffer);
@@ -889,33 +895,4 @@ void VulkanApp::FrameBufferReziseCallback(GLFWwindow* window, int width, int hei
 {
 	auto app{ reinterpret_cast<VulkanApp*>(glfwGetWindowUserPointer(window)) };
 	app->m_FramebufferResized = true;
-}
-
-void VulkanApp::CreateDescriptorSetLayout()
-{
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	uboLayoutBinding.pImmutableSamplers = nullptr; // For image sampling
-
-	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers  = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	VkResult result{vkCreateDescriptorSetLayout(m_Device, &layoutInfo, nullptr, &m_DescriptorSetLayout)};
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
 }

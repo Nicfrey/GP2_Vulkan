@@ -12,15 +12,16 @@ TextureImage::TextureImage(std::string path): m_TexturePath{std::move(path)}
 
 TextureImage::TextureImage(const std::string& path, VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool,VkQueue graphicsQueue)
 {
-	Init(device, physicalDevice, commandPool, graphicsQueue);
+	Init(path, device, physicalDevice, commandPool, graphicsQueue);
 }
 
-void TextureImage::Init(VkDevice device, VkPhysicalDevice physicalDevice,
+void TextureImage::Init(std::string path, VkDevice device, VkPhysicalDevice physicalDevice,
 	VkCommandPool commandPool, VkQueue graphicsQueue)
 {
 	int textWidth;
 	int textHeight;
 	int textChannels;
+	m_TexturePath = std::move(path);
 	const std::string newPath{ m_DataPath + m_TexturePath };
 	stbi_uc* pixels{ stbi_load(newPath.c_str(),&textWidth,&textHeight,&textChannels,STBI_rgb_alpha) };
 	VkDeviceSize imageSize = textWidth * textHeight * 4;

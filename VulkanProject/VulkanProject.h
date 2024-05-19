@@ -86,8 +86,10 @@ private:
 
 	std::vector<VkImageView> m_SwapChainImageViews;
 	VkRenderPass m_RenderPass;
-	Pipeline m_Pipeline2D;
-	Pipeline m_Pipeline3D;
+
+	TextureImage m_TextureImage;
+	Pipeline<Vertex2D> m_Pipeline2D;
+	Pipeline<Vertex3D> m_Pipeline3D;
 
 	VkCommandPool m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
@@ -100,9 +102,7 @@ private:
 
 	Scene m_Scene2D{};
 	Scene m_Scene3D{};
-	TextureImage textureImage{};
-
-	VkDescriptorSetLayout m_DescriptorSetLayout;
+	TextureImage textureImage{"TestTexture.jpg"};
 
 	void SetupDebugMessenger();
 	void InitVulkan();
@@ -151,5 +151,4 @@ private:
 	 */
 	void CleanupSwapChain();
 	static void FrameBufferReziseCallback(GLFWwindow* window, int width, int height);
-	void CreateDescriptorSetLayout();
 };

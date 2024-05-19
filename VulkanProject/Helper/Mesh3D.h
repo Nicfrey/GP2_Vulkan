@@ -4,7 +4,7 @@
 class Mesh3D : public Mesh
 {
 public:
-	Mesh3D(int maxFrameInFlight, const std::string& texture = "");
+	Mesh3D();
 	~Mesh3D() override = default;
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
 		VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout) override;
@@ -19,15 +19,6 @@ public:
 	size_t GetVerticesSize() const;
 private:
 	std::vector<Vertex3D> m_Vertices{};
-	int m_MaxFrameInFlight;
-	std::vector<VkBuffer> m_UniformBuffers{};
-	std::vector<VkDeviceMemory> m_UniformBuffersMemory{};
 	VertexBuffer m_VertexBuffer{};
 	IndexBuffer m_IndexBuffer{};
-	std::vector<void*> m_UniformBuffersMapped{};
-	VkDescriptorPool m_DescriptorPool{};
-	std::vector<VkDescriptorSet> m_DescriptorSets;
-	TextureImage m_TextureImage{};
-
-	void CreateUniformBuffers(VkPhysicalDevice physicalDevice, VkDevice device);
 };

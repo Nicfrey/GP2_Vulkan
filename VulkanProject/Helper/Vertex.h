@@ -17,8 +17,10 @@ struct Vertex2D
 	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
 };
 
-struct Vertex3D : public Vertex2D
+struct Vertex3D
 {
+	glm::vec2 pos;
+	glm::vec3 color;
 	glm::vec2 textCoord;
 
 	static VkVertexInputBindingDescription GetBinding();

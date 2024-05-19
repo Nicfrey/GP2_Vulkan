@@ -63,6 +63,10 @@ set(SOURCES main.cpp
     Helper/TextureImage.h
     Helper/TextureImage.cpp
     Helper/Helper.h
+    Helper/Descriptor.h
+    Helper/Descriptor.cpp
+    Helper/Shader.h
+    Helper/Shader.cpp
 )
 
 # Create the executable
