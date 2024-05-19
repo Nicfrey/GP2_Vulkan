@@ -51,7 +51,7 @@ void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physic
 	const std::string& fileVertex, const std::string& fileFragment, Scene* scene, size_t frames)
 {
 	m_Shader = std::make_unique<Shader>();
-	m_Shader->Initialize(device, physicalDevice, commandPool, graphicsQueue, static_cast<int>(frames));
+	m_Shader->Initialize(device, physicalDevice, static_cast<int>(frames));
 	m_pScene = scene;
 	auto vertShaderCode{ ReadFile(fileVertex) };
 	auto fragShaderCode{ ReadFile(fileFragment) };
@@ -238,7 +238,6 @@ void Pipeline<T, T0>::Cleanup(VkDevice device)
 template <typename T, typename T0>
 void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkExtent2D swapChainExtent) const
 {
-	m_Shader->BindDescriptorSets(commandBuffer, m_PipelineLayout, currentFrame);
 
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
 
@@ -257,6 +256,8 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 	scissor.extent = swapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+	m_Shader->BindDescriptorSets(commandBuffer, m_PipelineLayout, currentFrame);
+
 	// Draw scene
 	m_pScene->Draw(commandBuffer, currentFrame, m_PipelineLayout);
 }
@@ -272,7 +273,6 @@ template <typename T, typename T0>
 void Pipeline<T, T0>::CreateDescriptorSets(VkDevice device, const TextureImage& textureImage) const
 {
 	m_Shader->CreateDescriptorSets(device, m_Shader->GetDescriptorSetLayout(),textureImage);
-
 }
 
 template <typename T, typename T0>

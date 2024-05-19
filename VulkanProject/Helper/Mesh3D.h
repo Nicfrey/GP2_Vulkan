@@ -18,5 +18,4 @@ public:
 protected:
 	std::vector<Vertex3D> m_Vertices{};
 	VertexBuffer m_VertexBuffer{};
-	IndexBuffer m_IndexBuffer{};
 };

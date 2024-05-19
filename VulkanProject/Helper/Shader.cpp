@@ -13,8 +13,7 @@ VkDescriptorSetLayout& Shader::GetDescriptorSetLayout()
 	return m_DescriptorSetLayout;
 }
 
-void Shader::Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice,
-                        const VkCommandPool& commandPool, const VkQueue& graphicsQueue, const int& maxFrameInFlight)
+void Shader::Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice, const int& maxFrameInFlight)
 {
 	m_MaxFrameInFlight = maxFrameInFlight;
 	CreateDescriptorSetLayout(device);

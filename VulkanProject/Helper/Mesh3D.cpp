@@ -8,16 +8,13 @@ void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPoo
 {
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
 	m_VertexBuffer = VertexBuffer(physicalDevice, device, commandPool, graphicQueue, vertexBufferSize, m_Vertices.data());
-
-	const VkDeviceSize indexBufferSize{ GetIndicesSizeInByte() };
-	m_IndexBuffer = IndexBuffer(physicalDevice, device, commandPool, graphicQueue, indexBufferSize, m_Indices.data());
+	Mesh::Init(physicalDevice, device, commandPool, graphicQueue, descriptorLayout);
 }
 
 void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const
 {
 	m_VertexBuffer.BindVertexBuffer(commandBuffer);
-	m_IndexBuffer.BindIndexBuffer(commandBuffer, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+	Mesh::Draw(commandBuffer, currentFrame, pipelineLayout);
 }
 
 void Mesh3D::Update(uint32_t currentImage, float deltaTime)
@@ -28,7 +25,7 @@ void Mesh3D::Update(uint32_t currentImage, float deltaTime)
 void Mesh3D::Cleanup(VkDevice device) const
 {
 	m_VertexBuffer.Cleanup(device);
-	m_IndexBuffer.Cleanup(device);
+	Mesh::Cleanup(device);
 }
 
 void Mesh3D::AddVertex(const Vertex3D& vertex)

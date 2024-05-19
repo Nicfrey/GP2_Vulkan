@@ -19,8 +19,7 @@ public:
 	Shader& operator=(Shader&& other) noexcept = delete;
 
 	VkDescriptorSetLayout& GetDescriptorSetLayout();
-	void Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkCommandPool& commandPool,
-	                const VkQueue& graphicsQueue,
+	void Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice,
 	                const int& maxFrameInFlight);
 	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
 	void Cleanup(const VkDevice& device);
