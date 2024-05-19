@@ -22,7 +22,7 @@ public:
 	void Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkCommandPool& commandPool,
 	                const VkQueue& graphicsQueue,
 	                const int& maxFrameInFlight);
-	void Update(uint32_t currentFrame, float deltaTime);
+	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
 	void Cleanup(const VkDevice& device);
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame);
 	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const TextureImage& textureImage);
@@ -34,6 +34,7 @@ private:
 	VkDescriptorSetLayout m_DescriptorSetLayout{};
 	TextureImage m_TextureImage{};
 	int m_MaxFrameInFlight{};
+	float m_Test{ 0 };
 
 	void CreateUniformBuffers(VkPhysicalDevice physicalDevice, VkDevice device);
 };

@@ -13,6 +13,7 @@
 #include "Helper/CircleMesh2D.h"
 #include "Helper/CubeMesh.h"
 #include "Helper/Mesh3D.h"
+#include "Helper/MeshObj.h"
 #include "Helper/RectangleMesh2D.h"
 #include "Helper/Vertex.h"
 
@@ -89,6 +90,7 @@ void VulkanApp::InitVulkan()
 
 	Scene* pScene3D{new Scene{}};
 	pScene3D->AddMesh(new CubeMesh{ });
+	pScene3D->AddMesh(new MeshObj{ "vehicle.obj" });
 
 
 	InitWindow();
@@ -127,10 +129,11 @@ void VulkanApp::MainLoop()
 	{
 		const auto currentTimer{ std::chrono::high_resolution_clock::now() };
 		const float deltaTime{ std::chrono::duration<float>(currentTimer - lastTime).count() };
+		lastTime = currentTimer;
+		std::cout << "deltaTime: " << deltaTime << std::endl;
 		glfwPollEvents();
 		Update(deltaTime);
 		DrawFrame();
-		lastTime = std::chrono::high_resolution_clock::now();
 	}
 	vkDeviceWaitIdle(m_Device);
 }
@@ -181,7 +184,7 @@ void VulkanApp::InitWindow()
 void VulkanApp::Update(float deltaTime)
 {
 	// Update meshes or camera
-	m_Pipeline3D.Update(m_CurrentFrame, deltaTime);
+	m_Pipeline3D.Update(m_CurrentFrame, deltaTime,m_SwapChainExtent);
 }
 
 void VulkanApp::CreateInstance()

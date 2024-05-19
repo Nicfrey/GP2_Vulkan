@@ -22,12 +22,13 @@ void Shader::Initialize(const VkDevice& device, const VkPhysicalDevice& physical
     m_Descriptor = std::make_unique<Descriptor>(device, maxFrameInFlight);
 }
 
-void Shader::Update(uint32_t currentFrame, float deltaTime)
+void Shader::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent)
 {
+	m_Test += deltaTime;
 	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::rotate(glm::mat4(1.0f), m_Test * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 10.0f);
+	ubo.proj = glm::perspective(glm::radians(90.f), swapchainExtent.width / static_cast<float>(swapchainExtent.height), 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 	std::memcpy(m_UniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
 }

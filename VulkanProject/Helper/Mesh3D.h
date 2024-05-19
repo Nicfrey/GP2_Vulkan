@@ -15,7 +15,7 @@ public:
 	void AddVertex(const glm::vec3& position, const glm::vec3& color, const glm::vec2& textCoord);
 	size_t GetVerticesSizeInByte() const;
 	size_t GetVerticesSize() const;
-private:
+protected:
 	std::vector<Vertex3D> m_Vertices{};
 	VertexBuffer m_VertexBuffer{};
 	IndexBuffer m_IndexBuffer{};

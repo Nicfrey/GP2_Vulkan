@@ -8,13 +8,13 @@
 Camera::Camera(const glm::vec3& position, float fovAngle)
 {
 	m_Position = position;
-	m_FOV = tanf((fovAngle * TO_RADIANS) / 2.f);
+	m_FOV = tanf((fovAngle * MathHelper::TO_RADIANS) / 2.f);
 }
 
 void Camera::Init(float fovAngle, const glm::vec3& position, float aspectRatio)
 {
 	m_FOVAngle = fovAngle;
-	m_FOV = tanf((fovAngle * TO_RADIANS) / 2.f);
+	m_FOV = tanf((fovAngle * MathHelper::TO_RADIANS) / 2.f);
 
 	m_Position = position;
 	m_Aspect = aspectRatio;

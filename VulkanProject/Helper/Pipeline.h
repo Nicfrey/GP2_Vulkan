@@ -34,7 +34,7 @@ public:
 	void DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkExtent2D swapChainExtent) const;
 	VkPipeline& GetPipeline() { return m_GraphicsPipeline; }
 	VkPipelineLayout& GetPipelineLayout() { return m_PipelineLayout; }
-	void Update(uint32_t currentFrame, float deltaTime);
+	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
 	void CreateDescriptorSets(VkDevice device, const TextureImage& textureImage) const;
 
 private:
@@ -86,7 +86,7 @@ void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physic
 
 	// Vertex Input
 	auto bindingDescription{ T::GetBinding() };
-	auto attributeDescriptions{ T::GetAttributeDescriptions() }; // TODO Need to change
+	auto attributeDescriptions{ T::GetAttributeDescriptions() };
 
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -262,9 +262,9 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 }
 
 template <typename T, typename T0>
-void Pipeline<T, T0>::Update(uint32_t currentFrame, float deltaTime)
+void Pipeline<T, T0>::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent)
 {
-	m_Shader->Update(currentFrame, deltaTime);
+	m_Shader->Update(currentFrame, deltaTime, swapchainExtent);
 	m_pScene->Update(currentFrame, deltaTime);
 }
 
