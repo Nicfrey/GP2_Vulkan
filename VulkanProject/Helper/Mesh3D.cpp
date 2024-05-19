@@ -4,20 +4,6 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-Mesh3D::Mesh3D()
-{
-	AddVertex( {-0.5f,-0.5f}, {1.f,0.f,0.f} , {1.0f,0.f} );
-	AddVertex( {0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f} );
-	AddVertex( {0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f} );
-	AddVertex( {-0.5f,0.5f},{1.f,1.f,1.f}, {1.f,1.f} );
-	AddIndex(0);
-	AddIndex(1);
-	AddIndex(2);
-	AddIndex(2);
-	AddIndex(3);
-	AddIndex(0);
-}
-
 void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout)
 {
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
@@ -50,17 +36,7 @@ void Mesh3D::AddVertex(const Vertex3D& vertex)
 	m_Vertices.push_back(vertex);
 }
 
-void Mesh3D::AddVertex(const glm::vec2& position, const glm::vec3& color)
-{
-	m_Vertices.push_back({ position, color });
-}
-
-void Mesh3D::AddVertex(const glm::vec2& position)
-{
-	m_Vertices.push_back({ position, {1.f,1.f,1.f} });
-}
-
-void Mesh3D::AddVertex(const glm::vec2& position, const glm::vec3& color, const glm::vec2& textCoord)
+auto Mesh3D::AddVertex(const glm::vec3& position, const glm::vec3& color, const glm::vec2& textCoord) -> void
 {
 	m_Vertices.push_back({ position, color, textCoord });
 }

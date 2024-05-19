@@ -19,7 +19,7 @@ struct Vertex2D
 
 struct Vertex3D
 {
-	glm::vec2 pos;
+	glm::vec3 pos;
 	glm::vec3 color;
 	glm::vec2 textCoord;
 
@@ -105,7 +105,7 @@ inline std::array<VkVertexInputAttributeDescription, 3> Vertex3D::GetAttributeDe
 	 * ivec2 : VK_FORMAT_R32G32_SINT
 	 * uvec4 : VK_FORMAT_R32G32B32A32_UINT
 	 */
-	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 	attributeDescriptions[0].offset = offsetof(Vertex3D, pos);
 
 	attributeDescriptions[1].binding = 0;

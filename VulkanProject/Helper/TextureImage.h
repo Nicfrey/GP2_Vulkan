@@ -19,7 +19,7 @@ public:
 	VkImageView GetTextureImageView() const { return m_TextureImageView; }
 	VkSampler GetTextureSampler() const { return m_TextureSampler; }
 	static void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory, VkDevice device, VkPhysicalDevice physicalDevice);
-	static VkImageView CreateImageView(VkImage image, VkFormat format, VkDevice device);
+	static VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkDevice device);
 	static void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	static void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDevice device, VkCommandPool commandPool, VkQueue graphicsQueue);
 	static void CreateTextureSampler(VkSampler& sampler, VkDevice device);

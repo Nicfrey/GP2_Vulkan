@@ -104,6 +104,10 @@ private:
 	Scene m_Scene3D{};
 	TextureImage textureImage{"TestTexture.jpg"};
 
+	VkImage m_DepthImage;
+	VkDeviceMemory m_DepthImageMemory;
+	VkImageView m_DepthImageView;
+
 	void SetupDebugMessenger();
 	void InitVulkan();
 	void MainLoop();
@@ -151,4 +155,8 @@ private:
 	 */
 	void CleanupSwapChain();
 	static void FrameBufferReziseCallback(GLFWwindow* window, int width, int height);
+	void CreateDepthResources();
+	VkFormat FindDepthFormat();
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	static bool HasStencilComponent(VkFormat format);
 };

@@ -46,7 +46,7 @@ void TextureImage::Init(std::string path, VkDevice device, VkPhysicalDevice phys
 	TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, device, commandPool, graphicsQueue);
 	CopyBufferToImage(stagingBuffer, m_TextureImage, static_cast<uint32_t>(textWidth), static_cast<uint32_t>(textHeight), device, commandPool, graphicsQueue);
 	TransitionImageLayout(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, device, commandPool, graphicsQueue);
-	m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, device);
+	m_TextureImageView = CreateImageView(m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, device);
 	CreateTextureSampler(m_TextureSampler, device);
 	vkDestroyBuffer(device, stagingBuffer, nullptr);
 	vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -102,14 +102,14 @@ void TextureImage::CreateImage(uint32_t width, uint32_t height, VkFormat format,
 	vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-VkImageView TextureImage::CreateImageView(VkImage image, VkFormat format, VkDevice device)
+VkImageView TextureImage::CreateImageView(VkImage image, VkFormat format,VkImageAspectFlags aspectFlags, VkDevice device)
 {
 	VkImageViewCreateInfo viewInfo{};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = image; // Image to create view for
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D; // Type of image
 	viewInfo.format = format; // Format of image data
-	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; // Which aspect of the image to view
+	viewInfo.subresourceRange.aspectMask = aspectFlags; // Which aspect of the image to view
 	viewInfo.subresourceRange.baseMipLevel = 0; // Start mipmap level
 	viewInfo.subresourceRange.levelCount = 1; // Number of mipmap levels
 	viewInfo.subresourceRange.baseArrayLayer = 0; // Start array layer
@@ -136,7 +136,18 @@ void TextureImage::TransitionImageLayout(VkImage image, VkFormat format, VkImage
 	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue family to transition from
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; // Queue family to transition to
 	barrier.image = image; // Image to transition
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; // Which aspect of the image to transition
+	if(newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	{
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		if(Helper::HasStencilComponent(format))
+		{
+			barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+	}
+	else
+	{
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; // Which aspect of the image to transition
+	}
 	barrier.subresourceRange.baseMipLevel = 0; // Mipmap level to start the transition
 	barrier.subresourceRange.levelCount = 1; // Number of mipmap levels to transition
 	barrier.subresourceRange.baseArrayLayer = 0; // Start array layer for the transition
@@ -160,6 +171,14 @@ void TextureImage::TransitionImageLayout(VkImage image, VkFormat format, VkImage
 
 		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; 
 		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT; 
+	}
+	else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+	{
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
 	else
 	{

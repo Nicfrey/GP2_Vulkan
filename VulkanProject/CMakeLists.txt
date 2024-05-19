@@ -67,6 +67,8 @@ set(SOURCES main.cpp
     Helper/Descriptor.cpp
     Helper/Shader.h
     Helper/Shader.cpp
+    Helper/CubeMesh.h
+    Helper/CubeMesh.cpp
 )
 
 # Create the executable
