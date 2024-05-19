@@ -17,6 +17,9 @@
 #include "Helper/RectangleMesh2D.h"
 #include "Helper/Vertex.h"
 
+float Helper::TimerVulkan::m_DeltaTime{};
+
+
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDebugUtilsMessengerEXT* pDebugMessenger)
@@ -84,6 +87,8 @@ void VulkanApp::SetupDebugMessenger()
 
 void VulkanApp::InitVulkan()
 {
+	m_Camera = Camera{ glm::vec3{0.f,0.f,70.f},60.f };
+
 	Scene* pScene2D{new Scene{}};
 	pScene2D->AddMesh(new RectangleMesh2D{ {-0.75f,-0.75f},1.f,1.f,{1.f,0.f,0.f} });
 	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
@@ -125,15 +130,12 @@ void VulkanApp::InitVulkan()
 
 void VulkanApp::MainLoop()
 {
-	auto lastTime{ std::chrono::high_resolution_clock::now() };
+	m_Timer.Start();
 	while (!glfwWindowShouldClose(m_Window))
 	{
-		const auto currentTimer{ std::chrono::high_resolution_clock::now() };
-		const float deltaTime{ std::chrono::duration<float>(currentTimer - lastTime).count() };
-		lastTime = currentTimer;
-		std::cout << "deltaTime: " << deltaTime << std::endl;
+		m_Timer.Update();
 		glfwPollEvents();
-		Update(deltaTime);
+		Update();
 		DrawFrame();
 	}
 	vkDeviceWaitIdle(m_Device);
@@ -178,14 +180,36 @@ void VulkanApp::InitWindow()
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	m_Window = glfwCreateWindow(m_Width, m_Height, "Vulkan", nullptr, nullptr);
+	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
+	{
+		auto app{ reinterpret_cast<VulkanApp*>(glfwGetWindowUserPointer(window)) };
+		const auto state{ glfwGetMouseButton(app->m_Window, GLFW_MOUSE_BUTTON_LEFT) };
+		if(state == GLFW_PRESS)
+		{
+			app->m_Camera.SetIsDragging(true);
+			glfwSetInputMode(app->m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else
+		{
+			app->m_Camera.SetIsDragging(false);
+			glfwSetInputMode(app->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		if(app->m_Camera.GetIsDragging())
+		{
+			app->m_Camera.MoveCamera(static_cast<float>(xPos),static_cast<float>(yPos));
+		}
+	});
+
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetFramebufferSizeCallback(m_Window, FrameBufferReziseCallback);
 }
 
-void VulkanApp::Update(float deltaTime)
+void VulkanApp::Update()
 {
 	// Update meshes or camera
-	m_Pipeline3D.Update(m_CurrentFrame, deltaTime,m_SwapChainExtent);
+	m_Camera.HandleKeyInput(m_Window);
+	m_Camera.Update(m_SwapChainExtent);
+	m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 }
 
 void VulkanApp::CreateInstance()
@@ -754,6 +778,11 @@ std::vector<char> VulkanApp::ReadFile(const std::string& filename)
 
 	file.close();
 	return buffer;
+}
+
+void VulkanApp::HandleCursorPos(GLFWwindow* window, double xpos, double ypos)
+{
+
 }
 
 void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)

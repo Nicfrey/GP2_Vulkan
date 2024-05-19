@@ -6,6 +6,21 @@
 
 #include "Shader.h"
 
+void Mesh3D::SetPosition(const glm::vec3& position)
+{
+	m_Position = position;
+	// Update Vertex
+	for (auto& vertex : m_Vertices)
+	{
+		vertex.pos += m_Position;
+	}
+}
+
+glm::vec3 Mesh3D::GetPosition() const
+{
+	return m_Position;
+}
+
 void Mesh3D::SetTextureImage(const std::string& path)
 {
 	m_TextureImage = std::make_unique<TextureImage>(path);
@@ -29,9 +44,9 @@ void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipeli
 	Mesh::Draw(commandBuffer, currentFrame, pipelineLayout);
 }
 
-void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent)
+void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
-	m_Shader->Update(currentImage, deltaTime,swapchainExtent);
+	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera);
 }
 
 void Mesh3D::Cleanup(VkDevice device) const

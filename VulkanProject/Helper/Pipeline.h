@@ -5,11 +5,10 @@
 
 #include "Descriptor.h"
 #include "Scene.h"
-#include "Shader.h"
 #include "vulkan/vulkan.h"
+#include "Camera.h"
 
 
-class Shader;
 
 template<typename T>
 struct is_vertex : std::false_type {};
@@ -34,7 +33,7 @@ public:
 	void DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkExtent2D swapChainExtent) const;
 	VkPipeline& GetPipeline() { return m_GraphicsPipeline; }
 	VkPipelineLayout& GetPipelineLayout() { return m_PipelineLayout; }
-	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
+	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 
 private:
 	static std::vector<char> ReadFile(const std::string& filename);
@@ -258,9 +257,9 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 }
 
 template <typename T, typename T0>
-void Pipeline<T, T0>::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent)
+void Pipeline<T, T0>::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
-	m_pScene->Update(currentFrame, deltaTime, swapchainExtent);
+	m_pScene->Update(currentFrame, deltaTime, swapchainExtent, camera);
 }
 
 template <typename T, typename T0>

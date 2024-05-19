@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "Helper/Helper.h"
 #include "Helper/VertexBuffer.h"
 #include "Helper/Pipeline.h"
 #include "Helper/Scene.h"
@@ -66,6 +67,9 @@ public:
 		void* pUserData);
 	static std::vector<char> ReadFile(const std::string& filename);
 private:
+	void HandleCursorPos(GLFWwindow* window, double xpos, double ypos);
+
+
 	GLFWwindow* m_Window;
 	uint32_t m_Width{ 800 };
 	uint32_t m_Height{ 600 };
@@ -106,13 +110,14 @@ private:
 	VkImage m_DepthImage;
 	VkDeviceMemory m_DepthImageMemory;
 	VkImageView m_DepthImageView;
+	Camera m_Camera;
 
 	void SetupDebugMessenger();
 	void InitVulkan();
 	void MainLoop();
 	void Cleanup();
 	void InitWindow();
-	void Update(float deltaTime);
+	void Update();
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
@@ -158,4 +163,5 @@ private:
 	VkFormat FindDepthFormat();
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	static bool HasStencilComponent(VkFormat format);
+	Helper::TimerVulkan m_Timer;
 };

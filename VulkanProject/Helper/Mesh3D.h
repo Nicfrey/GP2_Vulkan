@@ -10,11 +10,13 @@ class Mesh3D : public Mesh
 public:
 	Mesh3D() = default;
 	~Mesh3D() override = default;
+	void SetPosition(const glm::vec3& position);
+	glm::vec3 GetPosition() const;
 	void SetTextureImage(const std::string& path);
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
 		VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout) override;
 	void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const override;
-	void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent);
+	void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 	void Cleanup(VkDevice device) const override;
 	void AddVertex(const Vertex3D& vertex);
 	void AddVertex(const glm::vec3& position, const glm::vec3& color, const glm::vec2& textCoord);
@@ -25,4 +27,6 @@ protected:
 	VertexBuffer m_VertexBuffer{};
 	std::unique_ptr<Shader> m_Shader{};
 	std::unique_ptr<TextureImage> m_TextureImage{};
+private:
+	glm::vec3 m_Position{};
 };

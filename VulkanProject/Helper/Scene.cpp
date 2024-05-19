@@ -19,13 +19,13 @@ void Scene::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame , VkPipeli
 	}
 }
 
-void Scene::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent)
+void Scene::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
 	for (auto mesh : m_Meshes)
 	{
 		if(Mesh3D* mesh3D{dynamic_cast<Mesh3D*>(mesh)})
 		{
-			mesh3D->Update(currentImage,deltaTime,swapchainExtent);
+			mesh3D->Update(currentImage,deltaTime,swapchainExtent, camera);
 		}
 	}
 }

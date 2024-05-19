@@ -7,6 +7,8 @@
 #include "VertexBuffer.h"
 #include "vulkan/vulkan.h"
 
+class Camera;
+
 class Shader
 {
 public:
@@ -18,7 +20,7 @@ public:
 	Shader& operator=(Shader&& other) noexcept = delete;
 
 	void Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice);
-	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent);
+	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 	void Cleanup(const VkDevice& device);
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame);
 	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage);
