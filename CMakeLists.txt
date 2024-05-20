@@ -38,6 +38,15 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(stb)
 
+FetchContent_Declare(
+	tinyobjloader
+	GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+	GIT_TAG v1.0.6
+)
+
+FetchContent_MakeAvailable(tinyobjloader)
+
+
 find_package(Vulkan REQUIRED)
 find_package(Doxygen REQUIRED)
 

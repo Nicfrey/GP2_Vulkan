@@ -97,10 +97,19 @@ void VulkanApp::InitVulkan()
 	CubeMesh* pCubeMesh{new CubeMesh{}};
 	pCubeMesh->SetTextureImage("TestTexture.jpg");
 	pScene3D->AddMesh(pCubeMesh);
+
 	MeshObj* pMeshObj{new MeshObj{"vehicle.obj"}};
 	pMeshObj->SetTextureImage("vehicle_diffuse.png");
 	pScene3D->AddMesh(pMeshObj);
+	MeshObj* pHomeObj{ new MeshObj{"home.obj"} };
+	pHomeObj->SetTextureImage("home.jpg");
+	pHomeObj->SetPosition({ 0.f,0.f,0.f });
+	//pScene3D->AddMesh(pHomeObj);
 
+	Scene* pScenePBR{ new Scene{} };
+	CubeMesh* pCubePBR{ new CubeMesh{} };
+	pCubePBR->SetTextureImage("TestTexture.jpg");
+	pScenePBR->AddMesh(pCubePBR);
 
 	InitWindow();
 	CreateInstance();
@@ -120,9 +129,11 @@ void VulkanApp::InitVulkan()
 
 	m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, Helper::MAX_FRAMES_IN_FLIGHT);
 	m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, Helper::MAX_FRAMES_IN_FLIGHT);
-	
+	m_PipelinePBR.InitializePipeline(m_Device, m_PhysicalDevice, m_SwapChainExtent, m_RenderPass, m_CommandPool, m_GraphicsQueue, "shaders/shaderPBR.vert.spv", "shaders/shaderPBR.frag.spv", pScenePBR, Helper::MAX_FRAMES_IN_FLIGHT);
+
 	m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 	m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+	m_PipelinePBR.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 
 	CreateCommandBuffer();
 	CreateSyncObjects();
@@ -147,6 +158,7 @@ void VulkanApp::Cleanup()
 
 	m_Pipeline2D.Cleanup(m_Device);
 	m_Pipeline3D.Cleanup(m_Device);
+	m_PipelinePBR.Cleanup(m_Device);
 
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
 
@@ -210,6 +222,7 @@ void VulkanApp::Update()
 	m_Camera.HandleKeyInput(m_Window);
 	m_Camera.Update(m_SwapChainExtent);
 	m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
+	m_PipelinePBR.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 }
 
 void VulkanApp::CreateInstance()
@@ -805,7 +818,7 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 	renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
 	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.f, 0.f, 0.f, 1.f };
+	clearValues[0].color = { 0.39f,0.59f,0.93f,1.f };
 	clearValues[1].depthStencil = {1.0f, 0};
 
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -813,8 +826,9 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
-//	m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	//m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	//m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	m_PipelinePBR.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
 
 
 	vkCmdEndRenderPass(commandBuffer);

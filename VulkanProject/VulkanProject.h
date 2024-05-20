@@ -93,6 +93,7 @@ private:
 	TextureImage m_TextureImage;
 	Pipeline<Vertex2D> m_Pipeline2D;
 	Pipeline<Vertex3D> m_Pipeline3D;
+	Pipeline<Vertex3D> m_PipelinePBR;
 
 	VkCommandPool m_CommandPool;
 	std::vector<VkCommandBuffer> m_CommandBuffers;

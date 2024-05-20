@@ -6,6 +6,8 @@
 #include "glm/vec3.hpp"
 #include "glm/mat4x4.hpp"
 #include  "vulkan/vulkan.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 struct Vertex2D
 {
@@ -25,10 +27,26 @@ struct Vertex3D
 	glm::vec3 normal;
 	glm::vec3 tangent;
 
+	bool operator==(const Vertex3D& other) const
+	{
+		return pos == other.pos && color == other.color && textCoord == other.textCoord;
+	}
+
 	static VkVertexInputBindingDescription GetBinding();
 
 	static std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions();
 };
+
+
+	template<> struct std::hash<Vertex3D>
+	{
+		size_t operator()(Vertex3D const& vertex) const noexcept
+		{
+			return ((std::hash<glm::vec3>()(vertex.pos) ^
+				(hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+				(hash<glm::vec2>()(vertex.textCoord) << 1);
+		}
+	};
 
 struct UniformBufferObject
 {
