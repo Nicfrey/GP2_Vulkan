@@ -71,6 +71,8 @@ set(SOURCES main.cpp
     Helper/CubeMesh.cpp
     Helper/MeshObj.h
     Helper/MeshObj.cpp
+    Helper/SphereMesh.h
+    Helper/SphereMesh.cpp
 )
  
 # Create the executable

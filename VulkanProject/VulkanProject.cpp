@@ -15,6 +15,7 @@
 #include "Helper/Mesh3D.h"
 #include "Helper/MeshObj.h"
 #include "Helper/RectangleMesh2D.h"
+#include "Helper/SphereMesh.h"
 #include "Helper/Vertex.h"
 
 float Helper::TimerVulkan::m_DeltaTime{};
@@ -109,7 +110,11 @@ void VulkanApp::InitVulkan()
 	Scene* pScenePBR{ new Scene{} };
 	CubeMesh* pCubePBR{ new CubeMesh{} };
 	pCubePBR->SetTextureImage("TestTexture.jpg");
-	pScenePBR->AddMesh(pCubePBR);
+	// pScenePBR->AddMesh(pCubePBR);
+
+	SphereMesh* pSphereMesh{ new SphereMesh{} };
+	pSphereMesh->SetTextureImage("TestTexture.jpg");
+	pScenePBR->AddMesh(pSphereMesh);
 
 	InitWindow();
 	CreateInstance();
