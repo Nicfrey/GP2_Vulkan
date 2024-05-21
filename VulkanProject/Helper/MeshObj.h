@@ -11,6 +11,7 @@ public:
 	~MeshObj() override = default;
 
 	static bool LoadObj(const std::string& filename, std::vector<Vertex3D>& vertices, std::vector<uint32_t>& indices, bool flipAxisAndWinding = true);
+	static void CalculateTangent(std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices);
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue,
 		VkDescriptorSetLayout descriptorLayout) override;
 	void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const override;

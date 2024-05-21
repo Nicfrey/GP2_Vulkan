@@ -63,6 +63,36 @@ bool MeshObj::LoadObj(const std::string& filename, std::vector<Vertex3D>& vertic
 	return true;
 }
 
+void MeshObj::CalculateTangent(std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices)
+{
+	for (size_t i = 0; i < indices.size(); i += 3) {
+		Vertex3D& v0 = vertices[indices[i]];
+		Vertex3D& v1 = vertices[indices[i + 1]];
+		Vertex3D& v2 = vertices[indices[i + 2]];
+
+		const glm::vec3 edge1 = v1.pos - v0.pos;
+		const glm::vec3 edge2 = v2.pos - v0.pos;
+
+		const glm::vec2 deltaUV1 = v1.textCoord - v0.textCoord;
+		const glm::vec2 deltaUV2 = v2.textCoord - v0.textCoord;
+
+		const float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+		glm::vec3 tangent;
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+		v0.tangent += tangent;
+		v1.tangent += tangent;
+		v2.tangent += tangent;
+	}
+
+	for (auto& vertex : vertices) {
+		vertex.tangent = glm::normalize(vertex.tangent);
+	}
+}
+
 void MeshObj::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue,
                    VkDescriptorSetLayout descriptorLayout)
 {

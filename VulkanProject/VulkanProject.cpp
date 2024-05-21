@@ -112,7 +112,7 @@ void VulkanApp::InitVulkan()
 	pCubePBR->SetTextureImage("TestTexture.jpg");
 	// pScenePBR->AddMesh(pCubePBR);
 
-	SphereMesh* pSphereMesh{ new SphereMesh{} };
+	SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
 	pSphereMesh->SetTextureImage("TestTexture.jpg");
 	pScenePBR->AddMesh(pSphereMesh);
 
