@@ -75,6 +75,9 @@ void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchain
 void Mesh3D::Cleanup(VkDevice device) const
 {
 	m_TextureImage->Cleanup(device);
+	m_TextureNormal->Cleanup(device);
+	m_TextureRoughness->Cleanup(device);
+	m_TextureSpecular->Cleanup(device);
 	m_Shader->Cleanup(device);
 	m_VertexBuffer.Cleanup(device);
 	Mesh::Cleanup(device);

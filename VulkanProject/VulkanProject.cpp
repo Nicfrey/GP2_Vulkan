@@ -109,7 +109,7 @@ void VulkanApp::InitVulkan()
 	//pScene3D->AddMesh(pHomeObj);
 	*/
 	Scene* pScenePBR{ new Scene{} };
-//	CubeMesh* pCubePBR{ new CubeMesh{} };
+	//CubeMesh* pCubePBR{ new CubeMesh{} };
 	//pCubePBR->SetTextureImage("TestTexture.jpg");
 	// pScenePBR->AddMesh(pCubePBR);
 

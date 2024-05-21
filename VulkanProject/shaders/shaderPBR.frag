@@ -2,7 +2,7 @@
 
 layout(binding = 1) uniform sampler2D diffuseSampler;
 layout(binding = 2) uniform sampler2D normalSampler;
-layout(binding = 3) uniform sampler2D specularSampler;
+layout(binding = 3) uniform sampler2D roughnessSampler;
 layout(binding = 4) uniform sampler2D glossSampler;
 
 layout(push_constant) uniform Constants {
@@ -30,41 +30,57 @@ vec3 LambertDiffuse(float kd, vec3 cd)
 	return (kd*cd) / PI;
 }
 
-vec3 GetReflectionSpecular(vec4 glossSampled, vec4 specularSampled, vec3 finalNormal, vec3 viewDirection)
+float NormalDistribution(float roughness, float cosTheta)
 {
-    vec3 glossColor = glossSampled.rgb * constant.shininess;
-    vec3 reflectLight = reflect(-constant.lightDirection, finalNormal);
-    float cosTheta = max(dot(reflectLight, viewDirection), 0.0);
-    vec3 reflectionSpecular = specularSampled.rgb * pow(cosTheta, glossColor.x);
-    return max(reflectionSpecular, vec3(0.0));
+    float alpha = roughness * roughness;
+    float alpha2 = alpha * alpha;
+    float NdotH = cosTheta;
+    float NdotH2 = NdotH * NdotH;
+    float num = alpha2;
+    float denom = (NdotH2 * (alpha2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+    return num / denom;
+}
+
+float GGX(float roughness, float cosTheta, float NDF, vec3 viewDirection, vec3 normal)
+{
+    float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
+    float NdotV = max(dot(normal, viewDirection), 0.0);
+    float NdotL = max(dot(normal, constant.lightDirection), 0.0);
+    float G = (NdotL * (1.0 - k) + k) * (NdotV * (1.0 - k) + k);
+    return NdotL * NdotV / G;
+}
+
+vec3 BRDF(float NDF, float G, vec3 F, vec3 color, vec3 normal, vec3 viewDirection)
+{
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(normal, viewDirection), 0.0) * max(dot(normal, normalize(constant.lightDirection)), 0.0) + 0.001;
+    return numerator / denominator;
+}
+
+vec3 FresnelSchlick(vec3 F0, vec3 viewDirection, float cosTheta)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 void main()
 {
-	vec4 diffuseSample = texture(diffuseSampler, fragTexCoord);
-    vec4 normalSample = texture(normalSampler, fragTexCoord);
-    vec4 glossSample = texture(glossSampler, fragTexCoord);
-    vec4 specularSample = texture(specularSampler, fragTexCoord);
+	vec3 albedo = texture(diffuseSampler, fragTexCoord).rgb;
+    float roughness = texture(roughnessSampler, fragTexCoord).r;
+    vec3 normal = normalize(texture(normalSampler, fragTexCoord).rgb * 2.0 - 1.0);
+    
+    vec3 viewDirection = normalize(constant.cameraPos - fragWorldPosition);
+    vec3 F0 = vec3(0.04);
+    float cosTheta = max(dot(normal, viewDirection), 0.0);
+    vec3 F = FresnelSchlick(F0, viewDirection, cosTheta);
+    float NDF = NormalDistribution(roughness, cosTheta);
+    float G = GGX(roughness, cosTheta, NDF, viewDirection, normal);
+    vec3 specular = BRDF(NDF, G, F, albedo, normal, viewDirection);
 
-    vec3 normal = fragNormal;
-    vec3 invViewDirection = normalize(constant.cameraPos - fragWorldPosition.xyz);
+    vec3 kD = vec3(1.0) - F;
+    kD *= 1.0 - max(roughness, 0.04);
 
-    if (constant.useNormal)
-    {
-        vec3 colorNormal = 2.0 * normalSample.rgb - 1.0;
-        vec3 binormal = cross(fragNormal, fragTangent);
-        mat3 tangentSpaceAxis = mat3(normalize(fragTangent), normalize(binormal), normalize(fragNormal));
-        colorNormal = normalize(tangentSpaceAxis * colorNormal);
-        normal = colorNormal;
-    }
+    vec3 radiance = (kD * albedo / PI + specular) * max(dot(normal, constant.lightDirection), 0.0);
 
-    float observedArea = max(dot(-constant.lightDirection, normal), 0.0);
-
-    if (observedArea > 0.0) {
-        vec3 reflexionSpecular = GetReflectionSpecular(glossSample, specularSample, normal, invViewDirection);
-        vec3 specularColor = LambertDiffuse(constant.lightIntensity, diffuseSample.rgb) + reflexionSpecular;
-        outColor = vec4(specularColor * observedArea, 1.0);
-    } else {
-        outColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
+    outColor = vec4(radiance, 1.0);
 }
