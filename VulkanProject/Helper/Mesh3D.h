@@ -27,6 +27,7 @@ protected:
 	VertexBuffer m_VertexBuffer{};
 	std::unique_ptr<Shader> m_Shader{};
 	std::unique_ptr<TextureImage> m_TextureImage{};
+	CameraConstants m_CameraConstants{};
 private:
 	glm::vec3 m_Position{};
 };

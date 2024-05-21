@@ -55,6 +55,11 @@ struct UniformBufferObject
 	glm::mat4 proj;
 };
 
+struct CameraConstants
+{
+	glm::vec3 cameraPos;
+};
+
 const std::vector<Vertex2D> vertices = {
 	{{-0.5f,-0.5f}, {1.f,0.f,0.f}},
 	{{0.5f,-0.5f},{0.f,1.f,0.f}},

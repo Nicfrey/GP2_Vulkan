@@ -4,6 +4,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "Camera.h"
 #include "Shader.h"
 
 void Mesh3D::SetPosition(const glm::vec3& position)
@@ -41,11 +42,15 @@ void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipeli
 {
 	m_Shader->BindDescriptorSets(commandBuffer, pipelineLayout, currentFrame);
 	m_VertexBuffer.BindVertexBuffer(commandBuffer);
+
+	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CameraConstants), &m_CameraConstants);
+
 	Mesh::Draw(commandBuffer, currentFrame, pipelineLayout);
 }
 
 void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
+	m_CameraConstants = { camera.GetPosition() };
 	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera);
 }
 
