@@ -5,6 +5,8 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "Camera.h"
+#include "Camera.h"
 #include "Descriptor.h"
 #include "Helper.h"
 #include "Vertex.h"
@@ -17,7 +19,7 @@ void Shader::Initialize(const VkDevice& device, const VkPhysicalDevice& physical
     m_Descriptor = std::make_unique<Descriptor>(device);
 }
 
-void Shader::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
+void Shader::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera, const glm::vec3& pos)
 {
 	m_Test += deltaTime;
 	UniformBufferObject ubo{};

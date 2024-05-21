@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <glm/fwd.hpp>
 
 #include "Descriptor.h"
 #include "TextureImage.h"
@@ -20,7 +21,7 @@ public:
 	Shader& operator=(Shader&& other) noexcept = delete;
 
 	void Initialize(const VkDevice& device, const VkPhysicalDevice& physicalDevice);
-	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
+	void Update(unsigned currentFrame, float deltaTime, ::VkExtent2D swapchainExtent, const ::Camera& camera,const glm::vec3& pos);
 	void Cleanup(const VkDevice& device);
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame);
 	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage, const std::

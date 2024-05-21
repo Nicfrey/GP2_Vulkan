@@ -68,8 +68,9 @@ void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipeli
 
 void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
-	m_Constants = { camera.GetPosition() };
-	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera);
+	m_Constants = { };
+	m_Constants.cameraPos = camera.GetPosition();
+	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera, GetPosition());
 }
 
 void Mesh3D::Cleanup(VkDevice device) const

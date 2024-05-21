@@ -230,7 +230,7 @@ void VulkanApp::Update()
 	// Update meshes or camera
 	m_Camera.HandleKeyInput(m_Window);
 	m_Camera.Update(m_SwapChainExtent);
-	m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
+	// m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 	m_PipelinePBR.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 }
 

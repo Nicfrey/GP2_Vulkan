@@ -3,7 +3,7 @@
 layout(binding = 1) uniform sampler2D diffuseSampler;
 layout(binding = 2) uniform sampler2D normalSampler;
 layout(binding = 3) uniform sampler2D roughnessSampler;
-layout(binding = 4) uniform sampler2D glossSampler;
+layout(binding = 4) uniform sampler2D metallicSampler;
 
 layout(push_constant) uniform Constants {
 	vec3 lightDirection;
@@ -24,63 +24,73 @@ layout(location = 0) out vec4 outColor;
 
 const float PI = 3.14159265358979323846;
 
-
-vec3 LambertDiffuse(float kd, vec3 cd)
+float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
-	return (kd*cd) / PI;
-}
-
-float NormalDistribution(float roughness, float cosTheta)
-{
-    float alpha = roughness * roughness;
-    float alpha2 = alpha * alpha;
-    float NdotH = cosTheta;
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH * NdotH;
-    float num = alpha2;
-    float denom = (NdotH2 * (alpha2 - 1.0) + 1.0);
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
     return num / denom;
 }
 
-float GGX(float roughness, float cosTheta, float NDF, vec3 viewDirection, vec3 normal)
+float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
-    float NdotV = max(dot(normal, viewDirection), 0.0);
-    float NdotL = max(dot(normal, constant.lightDirection), 0.0);
-    float G = (NdotL * (1.0 - k) + k) * (NdotV * (1.0 - k) + k);
-    return NdotL * NdotV / G;
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+    float num = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+    return num / denom;
 }
 
-vec3 BRDF(float NDF, float G, vec3 F, vec3 color, vec3 normal, vec3 viewDirection)
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 {
-    vec3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(normal, viewDirection), 0.0) * max(dot(normal, normalize(constant.lightDirection)), 0.0) + 0.001;
-    return numerator / denominator;
-}
-
-vec3 FresnelSchlick(vec3 F0, vec3 viewDirection, float cosTheta)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
 }
 
 void main()
 {
 	vec3 albedo = texture(diffuseSampler, fragTexCoord).rgb;
     float roughness = texture(roughnessSampler, fragTexCoord).r;
+    float metallic = texture(metallicSampler, fragTexCoord).r;
     vec3 normal = normalize(texture(normalSampler, fragTexCoord).rgb * 2.0 - 1.0);
-    
-    vec3 viewDirection = normalize(constant.cameraPos - fragWorldPosition);
-    vec3 F0 = vec3(0.04);
-    float cosTheta = max(dot(normal, viewDirection), 0.0);
-    vec3 F = FresnelSchlick(F0, viewDirection, cosTheta);
-    float NDF = NormalDistribution(roughness, cosTheta);
-    float G = GGX(roughness, cosTheta, NDF, viewDirection, normal);
-    vec3 specular = BRDF(NDF, G, F, albedo, normal, viewDirection);
 
-    vec3 kD = vec3(1.0) - F;
-    kD *= 1.0 - max(roughness, 0.04);
+    vec3 ambient = vec3(0.03) * albedo;
 
-    vec3 radiance = (kD * albedo / PI + specular) * max(dot(normal, constant.lightDirection), 0.0);
+    vec3 binormal = cross(fragNormal, fragTangent);
+    mat3 tangentSpace = mat3(normalize(fragTangent), normalize(binormal), normalize(fragNormal));
+    normal = normalize(tangentSpace * normal);
 
-    outColor = vec4(radiance, 1.0);
+    vec3 viewDir = normalize(fragWorldPosition - constant.cameraPos);
+    vec3 halfVector = normalize(viewDir + constant.lightDirection);
+
+    vec3 tangentNormal = normalize(normal);
+
+    float diff = max(dot(tangentNormal, constant.lightDirection), 0.0);
+
+    // Fresnel-Schlick approximation
+    vec3 F0 = mix(vec3(0.04),albedo,metallic);
+    vec3 F = F0 + (1.0 - F0) * pow(1.0 - dot(viewDir, halfVector), 5.0);
+
+    // Cook-Torrance BRDF
+    float D = DistributionGGX(tangentNormal, halfVector, roughness);
+    float G = GeometrySmith(tangentNormal, viewDir, constant.lightDirection, roughness);
+    vec3 numerator = D * G * F;
+    float denominator = 4.0 * max(0.0, dot(tangentNormal, viewDir)) * max(0.0, dot(tangentNormal, constant.lightDirection)) + 0.001;
+    vec3 specular = numerator / denominator;
+
+    // final color
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;
+
+    vec3 diffuse = kD * diff * albedo;
+
+    outColor = vec4(diffuse + specular, 1.0);
 }

@@ -6,6 +6,7 @@
 
 SphereMesh::SphereMesh(const glm::vec3& center, float radius, int nbStacks, int nbSlices)
 {
+    SetPosition(center);
     CreateSphere(center, radius, nbStacks, nbSlices);
     MeshObj::CalculateTangent(m_Vertices,m_Indices);
 }
