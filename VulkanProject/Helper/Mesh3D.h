@@ -13,6 +13,9 @@ public:
 	void SetPosition(const glm::vec3& position);
 	glm::vec3 GetPosition() const;
 	void SetTextureImage(const std::string& path);
+	void SetTextureNormal(const std::string& path);
+	void SetTextureRoughness(const std::string& path);
+	void SetTextureSpecular(const std::string& path);
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
 		VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout) override;
 	void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const override;
@@ -27,7 +30,11 @@ protected:
 	VertexBuffer m_VertexBuffer{};
 	std::unique_ptr<Shader> m_Shader{};
 	std::unique_ptr<TextureImage> m_TextureImage{};
-	CameraConstants m_CameraConstants{};
+	Constants m_Constants{};
+	std::unique_ptr<TextureImage> m_TextureNormal;
+	std::unique_ptr<TextureImage> m_TextureRoughness;
+	std::unique_ptr<TextureImage> m_TextureSpecular;
+
 private:
 	glm::vec3 m_Position{};
 };

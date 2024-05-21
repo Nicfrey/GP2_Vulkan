@@ -10,11 +10,17 @@
 
 Descriptor::Descriptor(VkDevice device)
 {
-	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	std::array<VkDescriptorPoolSize, 5> poolSizes{};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(Helper::MAX_FRAMES_IN_FLIGHT);
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(Helper::MAX_FRAMES_IN_FLIGHT);
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(Helper::MAX_FRAMES_IN_FLIGHT);
+	poolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[3].descriptorCount = static_cast<uint32_t>(Helper::MAX_FRAMES_IN_FLIGHT);
+	poolSizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[4].descriptorCount = static_cast<uint32_t>(Helper::MAX_FRAMES_IN_FLIGHT);
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -45,7 +51,7 @@ void Descriptor::Cleanup(VkDevice device) const
 }
 
 void Descriptor::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorSetLayout,
-                                       std::vector<DataBuffer>& buffers, const std::unique_ptr<TextureImage>& textureImage)
+	std::vector<DataBuffer>& buffers, const std::unique_ptr<TextureImage>& textureImage, const std::unique_ptr<TextureImage>& normalImage, const std::unique_ptr<TextureImage>& roughnessImage, const std::unique_ptr<TextureImage>& specularImage)
 {
 	const std::vector layouts(Helper::MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
@@ -73,8 +79,22 @@ void Descriptor::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout des
 		imageInfo.imageView = textureImage->GetTextureImageView();
 		imageInfo.sampler = textureImage->GetTextureSampler();
 
+		VkDescriptorImageInfo normalImageInfo{};
+		normalImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		normalImageInfo.imageView = normalImage->GetTextureImageView();
+		normalImageInfo.sampler = normalImage->GetTextureSampler();
 
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+		VkDescriptorImageInfo roughnessImageInfo{};
+		roughnessImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		roughnessImageInfo.imageView = roughnessImage->GetTextureImageView();
+		roughnessImageInfo.sampler = roughnessImage->GetTextureSampler();
+
+		VkDescriptorImageInfo specularImageInfo{};
+		specularImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		specularImageInfo.imageView = specularImage->GetTextureImageView();
+		specularImageInfo.sampler = specularImage->GetTextureSampler();
+
+		std::array<VkWriteDescriptorSet, 5> descriptorWrites{};
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = m_DescriptorSets[i];
 		descriptorWrites[0].dstBinding = 0;
@@ -90,6 +110,30 @@ void Descriptor::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout des
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
+
+		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[2].dstSet = m_DescriptorSets[i];
+		descriptorWrites[2].dstBinding = 2;
+		descriptorWrites[2].dstArrayElement = 0;
+		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[2].descriptorCount = 1;
+		descriptorWrites[2].pImageInfo = &normalImageInfo;
+
+		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[3].dstSet = m_DescriptorSets[i];
+		descriptorWrites[3].dstBinding = 3;
+		descriptorWrites[3].dstArrayElement = 0;
+		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[3].descriptorCount = 1;
+		descriptorWrites[3].pImageInfo = &roughnessImageInfo;
+
+		descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[4].dstSet = m_DescriptorSets[i];
+		descriptorWrites[4].dstBinding = 4;
+		descriptorWrites[4].dstArrayElement = 0;
+		descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[4].descriptorCount = 1;
+		descriptorWrites[4].pImageInfo = &specularImageInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0,
 		                       nullptr);

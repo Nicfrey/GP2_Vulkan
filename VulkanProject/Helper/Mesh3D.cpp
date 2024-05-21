@@ -27,12 +27,30 @@ void Mesh3D::SetTextureImage(const std::string& path)
 	m_TextureImage = std::make_unique<TextureImage>(path);
 }
 
+void Mesh3D::SetTextureNormal(const std::string& path)
+{
+	m_TextureNormal = std::make_unique<TextureImage>(path);
+}
+
+void Mesh3D::SetTextureRoughness(const std::string& path)
+{
+	m_TextureRoughness = std::make_unique<TextureImage>(path);
+}
+
+void Mesh3D::SetTextureSpecular(const std::string& path)
+{
+	m_TextureSpecular = std::make_unique<TextureImage>(path);
+}
+
 void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout)
 {
 	m_TextureImage->Init(device, physicalDevice, commandPool, graphicQueue);
+	m_TextureNormal->Init(device, physicalDevice, commandPool, graphicQueue);
+	m_TextureRoughness->Init(device, physicalDevice, commandPool, graphicQueue);
+	m_TextureSpecular->Init(device, physicalDevice, commandPool, graphicQueue);
 	m_Shader = std::make_unique<Shader>();
 	m_Shader->Initialize(device,physicalDevice);
-	m_Shader->CreateDescriptorSets(device, descriptorLayout, m_TextureImage);
+	m_Shader->CreateDescriptorSets(device, descriptorLayout, m_TextureImage, m_TextureNormal, m_TextureRoughness, m_TextureSpecular);
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
 	m_VertexBuffer = VertexBuffer(physicalDevice, device, commandPool, graphicQueue, vertexBufferSize, m_Vertices.data());
 	Mesh::Init(physicalDevice, device, commandPool, graphicQueue, descriptorLayout);
@@ -43,14 +61,14 @@ void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipeli
 	m_Shader->BindDescriptorSets(commandBuffer, pipelineLayout, currentFrame);
 	m_VertexBuffer.BindVertexBuffer(commandBuffer);
 
-	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CameraConstants), &m_CameraConstants);
+	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(Constants), &m_Constants);
 
 	Mesh::Draw(commandBuffer, currentFrame, pipelineLayout);
 }
 
 void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
-	m_CameraConstants = { camera.GetPosition() };
+	m_Constants = { camera.GetPosition() };
 	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera);
 }
 

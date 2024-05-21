@@ -163,9 +163,9 @@ void Pipeline<T, T0>::InitializePipeline(VkDevice device,VkPhysicalDevice physic
 	colorBlendingCreateInfo.pAttachments = &colorBlendAttachment;
 
 	VkPushConstantRange pushConstantRange{};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	pushConstantRange.offset = 0;
-	pushConstantRange.size = sizeof(CameraConstants);
+	pushConstantRange.size = sizeof(Constants);
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -324,7 +324,29 @@ void Pipeline<T, T0>::CreateDescriptorSetLayout(VkDevice device)
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
+	VkDescriptorSetLayoutBinding samplerNormalBinding{};
+	samplerNormalBinding.binding = 2;
+	samplerNormalBinding.descriptorCount = 1;
+	samplerNormalBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerNormalBinding.pImmutableSamplers = nullptr;
+	samplerNormalBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	VkDescriptorSetLayoutBinding samplerRoughnessBinding{};
+	samplerRoughnessBinding.binding = 3;
+	samplerRoughnessBinding.descriptorCount = 1;
+	samplerRoughnessBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerRoughnessBinding.pImmutableSamplers = nullptr;
+	samplerRoughnessBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	VkDescriptorSetLayoutBinding samplerSpecularBinding{};
+	samplerSpecularBinding.binding = 4;
+	samplerSpecularBinding.descriptorCount = 1;
+	samplerSpecularBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerSpecularBinding.pImmutableSamplers = nullptr;
+	samplerSpecularBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 5> bindings = { uboLayoutBinding, samplerLayoutBinding, samplerNormalBinding, samplerRoughnessBinding, samplerSpecularBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());

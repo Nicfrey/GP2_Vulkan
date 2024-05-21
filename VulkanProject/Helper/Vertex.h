@@ -55,9 +55,13 @@ struct UniformBufferObject
 	glm::mat4 proj;
 };
 
-struct CameraConstants
+struct Constants
 {
-	glm::vec3 cameraPos;
+	glm::vec3 lightDir{ 0.555f,-0.577f,0.577f };
+	float lightIntensity{ 7.f };
+	glm::vec3 cameraPos{};
+	float shininess{};
+	bool useNormal{ true };
 };
 
 const std::vector<Vertex2D> vertices = {

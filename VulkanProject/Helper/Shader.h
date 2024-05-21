@@ -23,7 +23,9 @@ public:
 	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 	void Cleanup(const VkDevice& device);
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame);
-	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage);
+	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage, const std::
+	                          unique_ptr<TextureImage>& normalImage, const std::unique_ptr<TextureImage>& roughnessImage, const std::unique_ptr<
+	                          TextureImage>& specularImage);
 private:
 	std::unique_ptr<Descriptor> m_Descriptor{};
 	std::vector<DataBuffer> m_UniformBuffer{};

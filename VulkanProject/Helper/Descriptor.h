@@ -23,7 +23,8 @@ public:
 	void BindDescriptorSets(VkCommandBuffer commandBuffer, VkPipelineLayout pipelineLayout, uint32_t currentFrame) const;
 	void Cleanup(VkDevice device) const;
 	void CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorSetLayout, std::vector<DataBuffer>& buffers, const std::unique_ptr<
-	                          TextureImage>& textureImage);
+	                          TextureImage>& textureImage, const std::unique_ptr<TextureImage>& normalImage, const std::unique_ptr<TextureImage>&
+	                          roughnessImage, const std::unique_ptr<TextureImage>& specularImage);
 private:
 	std::vector<VkDescriptorSet> m_DescriptorSets;
 	VkDescriptorPool m_DescriptorPool;

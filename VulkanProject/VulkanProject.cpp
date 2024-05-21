@@ -95,6 +95,7 @@ void VulkanApp::InitVulkan()
 	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
 
 	Scene* pScene3D{new Scene{}};
+	/*
 	CubeMesh* pCubeMesh{new CubeMesh{}};
 	pCubeMesh->SetTextureImage("TestTexture.jpg");
 	pScene3D->AddMesh(pCubeMesh);
@@ -106,14 +107,17 @@ void VulkanApp::InitVulkan()
 	pHomeObj->SetTextureImage("home.jpg");
 	pHomeObj->SetPosition({ 0.f,0.f,0.f });
 	//pScene3D->AddMesh(pHomeObj);
-
+	*/
 	Scene* pScenePBR{ new Scene{} };
-	CubeMesh* pCubePBR{ new CubeMesh{} };
-	pCubePBR->SetTextureImage("TestTexture.jpg");
+//	CubeMesh* pCubePBR{ new CubeMesh{} };
+	//pCubePBR->SetTextureImage("TestTexture.jpg");
 	// pScenePBR->AddMesh(pCubePBR);
 
 	SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
-	pSphereMesh->SetTextureImage("TestTexture.jpg");
+	pSphereMesh->SetTextureImage("red-scifi-metal_albedo.png");
+	pSphereMesh->SetTextureNormal("red-scifi-metal_normal-ogl.png");
+	pSphereMesh->SetTextureRoughness("red-scifi-metal_roughness.png");
+	pSphereMesh->SetTextureSpecular("red-scifi-metal_specular.png");
 	pScenePBR->AddMesh(pSphereMesh);
 
 	InitWindow();

@@ -55,7 +55,7 @@ void Shader::CreateUniformBuffers(VkPhysicalDevice physicalDevice, VkDevice devi
 	}
 }
 
-void Shader::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage) 
+void Shader::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descriptorLayout, const std::unique_ptr<TextureImage>& textureImage, const std::unique_ptr<TextureImage>& normalImage, const std::unique_ptr<TextureImage>& roughnessImage, const std::unique_ptr<TextureImage>& specularImage)
 {
-	m_Descriptor->CreateDescriptorSets(device, descriptorLayout, m_UniformBuffer, textureImage);
+	m_Descriptor->CreateDescriptorSets(device, descriptorLayout, m_UniformBuffer, textureImage, normalImage, roughnessImage, specularImage);
 }
