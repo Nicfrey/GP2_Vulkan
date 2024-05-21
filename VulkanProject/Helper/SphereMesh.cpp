@@ -17,7 +17,7 @@ void SphereMesh::CreateSphere(const glm::vec3& center, float radius, int nbStack
     m_Vertices.clear();
 
     // add top vertex
-    m_Vertices.push_back(Vertex3D{ glm::vec3{center + glm::vec3{0, radius, 0}}, {1, 1, 1}, {0, 0}, {0, 1, 0}, {0, 0, 0} });
+    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, radius, 0}}, {1, 1, 1}, {0, 0}, {0, 1, 0}, {0, 0, 0} });
 
     // generate vertices per stack / slice
     for (int i = 0; i < nbStacks - 1; i++)
@@ -28,18 +28,18 @@ void SphereMesh::CreateSphere(const glm::vec3& center, float radius, int nbStack
         {
             float u = static_cast<float>(j) / nbSlices; // Calculating the u texture coordinate
             const double theta = 2.0 * MathHelper::PI * j / nbSlices;
-            const float x = radius * std::sin(phi) * std::cos(theta);
-            const float y = radius * std::cos(phi);
-            const float z = radius * std::sin(phi) * std::sin(theta);
+            const float x = radius * std::sinf(phi) * std::cosf(theta);
+            const float y = radius * std::cosf(phi);
+            const float z = radius * std::sinf(phi) * std::sinf(theta);
 
-            glm::vec3 pos = glm::vec3(center + glm::vec3{ x, y, z });
-            glm::vec3 normal = glm::normalize(pos - center);
+            glm::vec3 pos = glm::vec3(glm::vec3{ x, y, z });
+            glm::vec3 normal = glm::normalize(pos);
             m_Vertices.push_back(Vertex3D{ pos, {1, 1, 1}, {u, v}, normal, {0, 0, 0} });
         }
     }
 
     // add bottom vertex
-    m_Vertices.push_back(Vertex3D{ glm::vec3{center + glm::vec3{0, -radius, 0}}, {1, 1, 1}, {0, 0}, {0, -1, 0}, {0, 0, 0} });
+    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, -radius, 0}}, {1, 1, 1}, {0, 0}, {0, -1, 0}, {0, 0, 0} });
 
     // add top / bottom triangles
     for (int i = 0; i < nbSlices; ++i)

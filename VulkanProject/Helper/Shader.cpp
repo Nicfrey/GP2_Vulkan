@@ -23,7 +23,8 @@ void Shader::Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchain
 {
 	m_Test += deltaTime;
 	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.0f), m_Test * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	ubo.model = glm::translate(glm::mat4(1.0f), pos);
+	ubo.model = glm::rotate(ubo.model, m_Test * glm::radians(90.0f), glm::vec3(0.f, 1.f, 0.f));
 	ubo.view = camera.GetViewMatrix();
 	ubo.proj = camera.GetProjectionMatrix();
 	ubo.proj[1][1] *= -1;

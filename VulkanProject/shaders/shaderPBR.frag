@@ -67,7 +67,7 @@ void main()
     mat3 tangentSpace = mat3(normalize(fragTangent), normalize(binormal), normalize(fragNormal));
     normal = normalize(tangentSpace * normal);
 
-    vec3 viewDir = normalize(fragWorldPosition - constant.cameraPos);
+    vec3 viewDir = normalize(constant.cameraPos - fragWorldPosition);
     vec3 halfVector = normalize(viewDir + constant.lightDirection);
 
     vec3 tangentNormal = normalize(normal);
@@ -75,7 +75,15 @@ void main()
     float diff = max(dot(tangentNormal, constant.lightDirection), 0.0);
 
     // Fresnel-Schlick approximation
-    vec3 F0 = mix(vec3(0.04),albedo,metallic);
+    vec3 F0;
+    if(metallic == 0.0)
+    {
+        F0 = vec3(0.04);
+    }
+    else 
+    {
+        F0 = albedo;
+    }
     vec3 F = F0 + (1.0 - F0) * pow(1.0 - dot(viewDir, halfVector), 5.0);
 
     // Cook-Torrance BRDF
@@ -87,10 +95,19 @@ void main()
 
     // final color
     vec3 kS = F;
-    vec3 kD = 1.0 - kS;
+    vec3 kD;
+    if(metallic == 0.0)
+    {
+        kD = vec3(1.0 - F0.r, 1.0 - F0.g, 1.0 - F0.b);
+    }
+    else 
+    {
+        kD = vec3(0.0);
+    }
     kD *= 1.0 - metallic;
+    vec3 diffuse = (kD * albedo) / PI;
 
-    vec3 diffuse = kD * diff * albedo;
 
-    outColor = vec4(diffuse + specular, 1.0);
+
+    outColor = vec4(diffuse + specular * constant.lightIntensity, 1.0);
 }

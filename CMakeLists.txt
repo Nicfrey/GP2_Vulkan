@@ -48,7 +48,6 @@ FetchContent_MakeAvailable(tinyobjloader)
 
 
 find_package(Vulkan REQUIRED)
-find_package(Doxygen REQUIRED)
 
 include_directories(${Vulkan_INCLUDE_DIRS})
 
