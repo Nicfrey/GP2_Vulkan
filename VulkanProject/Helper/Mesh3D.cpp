@@ -11,10 +11,12 @@ void Mesh3D::SetPosition(const glm::vec3& position)
 {
 	m_Position = position;
 	// Update Vertex
+	/*
 	for (auto& vertex : m_Vertices)
 	{
 		vertex.pos += m_Position;
 	}
+	*/
 }
 
 glm::vec3 Mesh3D::GetPosition() const

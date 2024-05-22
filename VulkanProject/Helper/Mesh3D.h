@@ -19,7 +19,7 @@ public:
 	void Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool,
 		VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout) override;
 	void Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipelineLayout pipelineLayout) const override;
-	void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
+	virtual void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 	void Cleanup(VkDevice device) const override;
 	void AddVertex(const Vertex3D& vertex);
 	void AddVertex(const glm::vec3& position, const glm::vec3& color, const glm::vec2& textCoord);

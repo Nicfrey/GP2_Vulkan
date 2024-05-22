@@ -96,16 +96,13 @@ void VulkanApp::InitVulkan()
 
 	Scene* pScene3D{new Scene{}};
 
-	CubeMesh* pCubeMesh{new CubeMesh{}};
-	pCubeMesh->SetTextureImage("TestTexture.jpg");
-	pScene3D->AddMesh(pCubeMesh);
 
 	MeshObj* pMeshObj{new MeshObj{"vehicle.obj"}};
 	pMeshObj->SetTextureImage("vehicle_diffuse.png");
 	pScene3D->AddMesh(pMeshObj);
-	MeshObj* pHomeObj{ new MeshObj{"home.obj"} };
-	pHomeObj->SetTextureImage("home.jpg");
-	pHomeObj->SetPosition({ 0.f,0.f,0.f });
+	MeshObj* pHomeObj{ new MeshObj{"Shovel.obj"} };
+	pHomeObj->SetTextureImage("ShovelAlbedo.png");
+	pHomeObj->SetPosition({ 50.f,0.f,0.f });
 	pScene3D->AddMesh(pHomeObj);
 
 	Scene* pScenePBR{ new Scene{} };
@@ -215,7 +212,7 @@ void VulkanApp::InitWindow()
 	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 	{
 		auto app{ reinterpret_cast<VulkanApp*>(glfwGetWindowUserPointer(window)) };
-		const auto state{ glfwGetMouseButton(app->m_Window, GLFW_MOUSE_BUTTON_LEFT) };
+		const auto state{ glfwGetMouseButton(app->m_Window, GLFW_MOUSE_BUTTON_RIGHT) };
 		if(state == GLFW_PRESS)
 		{
 			app->m_Camera.SetIsDragging(true);
