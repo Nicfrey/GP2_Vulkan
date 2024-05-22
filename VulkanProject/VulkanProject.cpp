@@ -91,11 +91,11 @@ void VulkanApp::InitVulkan()
 	m_Camera = Camera{ glm::vec3{0.f,0.f,70.f},60.f };
 
 	Scene* pScene2D{new Scene{}};
-	pScene2D->AddMesh(new RectangleMesh2D{ {-0.75f,-0.75f},1.f,1.f,{1.f,0.f,0.f} });
-	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,-0.5f},0.1f,8 });
+	pScene2D->AddMesh(new RectangleMesh2D{ {-0.75f,-0.75f},0.25f,0.25f,{1.f,0.f,0.f} });
+	pScene2D->AddMesh(new CircleMesh2D{ {0.25f,0.5f},0.1f,32 });
 
 	Scene* pScene3D{new Scene{}};
-	/*
+
 	CubeMesh* pCubeMesh{new CubeMesh{}};
 	pCubeMesh->SetTextureImage("TestTexture.jpg");
 	pScene3D->AddMesh(pCubeMesh);
@@ -106,12 +106,9 @@ void VulkanApp::InitVulkan()
 	MeshObj* pHomeObj{ new MeshObj{"home.obj"} };
 	pHomeObj->SetTextureImage("home.jpg");
 	pHomeObj->SetPosition({ 0.f,0.f,0.f });
-	//pScene3D->AddMesh(pHomeObj);
-	*/
+	pScene3D->AddMesh(pHomeObj);
+
 	Scene* pScenePBR{ new Scene{} };
-	//CubeMesh* pCubePBR{ new CubeMesh{} };
-	//pCubePBR->SetTextureImage("TestTexture.jpg");
-	// pScenePBR->AddMesh(pCubePBR);
 
 	SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
 	pSphereMesh->SetTextureImage("red-scifi-metal_albedo.png");
@@ -244,7 +241,7 @@ void VulkanApp::Update()
 	// Update meshes or camera
 	m_Camera.HandleKeyInput(m_Window);
 	m_Camera.Update(m_SwapChainExtent);
-	// m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
+	m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 	m_PipelinePBR.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 }
 
@@ -849,9 +846,9 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	//m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
-	//m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
-	m_PipelinePBR.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	//m_PipelinePBR.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
 
 
 	vkCmdEndRenderPass(commandBuffer);

@@ -39,7 +39,7 @@ void Mesh3D::SetTextureRoughness(const std::string& path)
 
 void Mesh3D::SetTextureSpecular(const std::string& path)
 {
-	m_TextureSpecular = std::make_unique<TextureImage>(path);
+	m_TextureMetallic = std::make_unique<TextureImage>(path);
 }
 
 void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue, VkDescriptorSetLayout descriptorLayout)
@@ -47,10 +47,10 @@ void Mesh3D::Init(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPoo
 	m_TextureImage->Init(device, physicalDevice, commandPool, graphicQueue);
 	m_TextureNormal->Init(device, physicalDevice, commandPool, graphicQueue);
 	m_TextureRoughness->Init(device, physicalDevice, commandPool, graphicQueue);
-	m_TextureSpecular->Init(device, physicalDevice, commandPool, graphicQueue);
+	m_TextureMetallic->Init(device, physicalDevice, commandPool, graphicQueue);
 	m_Shader = std::make_unique<Shader>();
 	m_Shader->Initialize(device,physicalDevice);
-	m_Shader->CreateDescriptorSets(device, descriptorLayout, m_TextureImage, m_TextureNormal, m_TextureRoughness, m_TextureSpecular);
+	m_Shader->CreateDescriptorSets(device, descriptorLayout, m_TextureImage, m_TextureNormal, m_TextureRoughness, m_TextureMetallic);
 	const VkDeviceSize vertexBufferSize{ GetVerticesSizeInByte() };
 	m_VertexBuffer = VertexBuffer(physicalDevice, device, commandPool, graphicQueue, vertexBufferSize, m_Vertices.data());
 	Mesh::Init(physicalDevice, device, commandPool, graphicQueue, descriptorLayout);
@@ -78,7 +78,7 @@ void Mesh3D::Cleanup(VkDevice device) const
 	m_TextureImage->Cleanup(device);
 	m_TextureNormal->Cleanup(device);
 	m_TextureRoughness->Cleanup(device);
-	m_TextureSpecular->Cleanup(device);
+	m_TextureMetallic->Cleanup(device);
 	m_Shader->Cleanup(device);
 	m_VertexBuffer.Cleanup(device);
 	Mesh::Cleanup(device);

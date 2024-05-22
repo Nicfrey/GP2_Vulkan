@@ -29,11 +29,11 @@ protected:
 	std::vector<Vertex3D> m_Vertices{};
 	VertexBuffer m_VertexBuffer{};
 	std::unique_ptr<Shader> m_Shader{};
-	std::unique_ptr<TextureImage> m_TextureImage{};
+	std::unique_ptr<TextureImage> m_TextureImage{ std::make_unique<TextureImage>("defaultAlbedo.png")};
 	Constants m_Constants{};
-	std::unique_ptr<TextureImage> m_TextureNormal;
-	std::unique_ptr<TextureImage> m_TextureRoughness;
-	std::unique_ptr<TextureImage> m_TextureSpecular;
+	std::unique_ptr<TextureImage> m_TextureNormal{ std::make_unique<TextureImage>("defaultNormal.png") };
+	std::unique_ptr<TextureImage> m_TextureRoughness{ std::make_unique<TextureImage>("defaultRoughness.png")};
+	std::unique_ptr<TextureImage> m_TextureMetallic{ std::make_unique<TextureImage>("defaultMetallic.png")};
 
 private:
 	glm::vec3 m_Position{};
