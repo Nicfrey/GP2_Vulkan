@@ -114,7 +114,7 @@ private:
 	Camera m_Camera;
 
 	void SetupDebugMessenger();
-	void InitImGui();
+	Scene* InitSceneJSON();
 	void InitVulkan();
 	void MainLoop();
 	void Cleanup();

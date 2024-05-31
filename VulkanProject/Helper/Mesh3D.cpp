@@ -27,21 +27,41 @@ glm::vec3 Mesh3D::GetPosition() const
 
 void Mesh3D::SetTextureImage(const std::string& path)
 {
+	if (path.empty())
+	{
+		m_TextureImage = std::make_unique<TextureImage>("defaultAlbedo.png");
+		return;
+	}
 	m_TextureImage = std::make_unique<TextureImage>(path);
 }
 
 void Mesh3D::SetTextureNormal(const std::string& path)
 {
+	if (path.empty())
+	{
+		m_TextureNormal = std::make_unique<TextureImage>("defaultNormal.png");
+		return;
+	}
 	m_TextureNormal = std::make_unique<TextureImage>(path);
 }
 
 void Mesh3D::SetTextureRoughness(const std::string& path)
 {
+	if(path.empty())
+	{
+		m_TextureRoughness = std::make_unique<TextureImage>("defaultRoughness.png");
+		return;
+	}
 	m_TextureRoughness = std::make_unique<TextureImage>(path);
 }
 
 void Mesh3D::SetTextureSpecular(const std::string& path)
 {
+	if (path.empty())
+	{
+		m_TextureMetallic = std::make_unique<TextureImage>("defaultMetallic.png");
+		return;
+	}
 	m_TextureMetallic = std::make_unique<TextureImage>(path);
 }
 

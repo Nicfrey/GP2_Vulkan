@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <chrono>
+#include "nlohmann/json.hpp"
 
 #include "Helper/Helper.h"
 #include "Helper/CircleMesh2D.h"
@@ -86,6 +87,50 @@ void VulkanApp::SetupDebugMessenger()
 	}
 }
 
+Scene* VulkanApp::InitSceneJSON()
+{
+	std::ifstream file{ "resources/ScenePBR.json" };
+	if(!file.is_open())
+	{
+		throw std::runtime_error("Failed to open file");
+	}
+
+	Scene* pScenePBR{ new Scene{} };
+	nlohmann::json json;
+	file >> json;
+	for(const auto& obj : json["objects"])
+	{
+		Mesh3D* pMesh{ nullptr };
+		glm::vec3 position{  };
+		float size{};
+		const std::string& objName{ obj["type"] };
+		if(objName == "SphereMesh")
+		{
+			size = static_cast<float>(obj["radius"]);
+			position = glm::vec3(obj["center"].at("x"), obj["center"].at("y"), obj["center"].at("z"));
+
+			pMesh = new SphereMesh{ position,size,obj["stacks"],obj["slices"] };
+		}
+		else
+		{
+			continue;
+		}
+		auto material{ obj["material"] };
+		pMesh->SetTextureImage(material.at("albedoTexture"));
+		pMesh->SetTextureNormal(material.at("normalTexture"));
+		pMesh->SetTextureRoughness(material.at("roughnessTexture"));
+		pMesh->SetTextureSpecular(material.at("metallicTexture"));
+		pMesh->UseAlbedoMap(material.at("useAlbedoMap"));
+		pMesh->SetAlbedoValue(glm::vec3{ material.at("albedo").at("r"),material.at("albedo").at("g"),material.at("albedo").at("b") });
+		pMesh->UseRoughnessMap(material.at("useRoughnessMap"));
+		pMesh->SetRoughnessValue(material.at("roughness"));
+		pMesh->UseMetalMap(material.at("useMetallicMap"));
+		pMesh->SetMetallicValue(material.at("metallic"));
+		pScenePBR->AddMesh(pMesh);
+	}
+	return pScenePBR;
+}
+
 void VulkanApp::InitVulkan()
 {
 	m_Camera = Camera{ glm::vec3{0.f,0.f,70.f},60.f };
@@ -105,9 +150,9 @@ void VulkanApp::InitVulkan()
 	pHomeObj->SetPosition({ 50.f,0.f,0.f });
 	pScene3D->AddMesh(pHomeObj);
 
-	Scene* pScenePBR{ new Scene{} };
+	Scene* pScenePBR{ InitSceneJSON() };
 
-	SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
+	/*SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
 	pSphereMesh->SetTextureImage("red-scifi-metal_albedo.png");
 	pSphereMesh->SetTextureNormal("red-scifi-metal_normal-ogl.png");
 	pSphereMesh->SetTextureRoughness("red-scifi-metal_roughness.png"); 
@@ -126,7 +171,8 @@ void VulkanApp::InitVulkan()
 	pSphereMesh3->SetTextureNormal("worn-modern-panels_normal-ogl.png");
 	pSphereMesh3->SetTextureRoughness("worn-modern-panels_roughness.png");
 	pSphereMesh3->SetTextureSpecular("worn-modern-panels_metallic.png");
-	pScenePBR->AddMesh(pSphereMesh3);
+	pScenePBR->AddMesh(pSphereMesh3);*/
+
 
 	InitWindow();
 	CreateInstance();
