@@ -22,12 +22,12 @@ void SphereMesh::CreateSphere(const glm::vec3& center, float radius, int nbStack
     // generate vertices per stack / slice
     for (int i = 0; i < nbStacks - 1; i++)
     {
-        double phi = MathHelper::PI * (i + 1) / nbStacks;
-        float v = static_cast<float>(i + 1) / nbStacks; // Calculating the v texture coordinate
+        float phi = MathHelper::PI * static_cast<float>(i + 1) / static_cast<float>(nbStacks);
+        float v = static_cast<float>(i + 1) / static_cast<float>(nbStacks); // Calculating the v texture coordinate
         for (int j = 0; j < nbSlices; j++)
         {
-            float u = static_cast<float>(j) / nbSlices; // Calculating the u texture coordinate
-            const double theta = 2.0 * MathHelper::PI * j / nbSlices;
+            float u = static_cast<float>(j) / static_cast<float>(nbSlices); // Calculating the u texture coordinate
+            const float theta = 2.0f * MathHelper::PI * static_cast<float>(j) / static_cast<float>(nbSlices);
             const float x = radius * std::sinf(phi) * std::cosf(theta);
             const float y = radius * std::cosf(phi);
             const float z = radius * std::sinf(phi) * std::sinf(theta);

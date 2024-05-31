@@ -69,17 +69,6 @@ struct Constants
 	float metalValue{ 0.5f };
 };
 
-const std::vector<Vertex2D> vertices = {
-	{{-0.5f,-0.5f}, {1.f,0.f,0.f}},
-	{{0.5f,-0.5f},{0.f,1.f,0.f}},
-	{{0.5f,0.5f},{0.f,0.f,1.f}},
-	{{-0.5f,0.5f},{1.f,1.f,1.f}}
-};
-
-const std::vector<uint32_t> indices{
-	0,1,2,2,3,0
-};
-
 inline VkVertexInputBindingDescription Vertex2D::GetBinding()
 {
 	VkVertexInputBindingDescription bindingDescription{};

@@ -117,6 +117,12 @@ Scene* VulkanApp::InitSceneJSON()
 			position = glm::vec3(obj["position"].at("x"), obj["position"].at("y"), obj["position"].at("z"));
 			pMesh->SetPosition(position);
 		}
+		else if(objName == "CubeMesh")
+		{
+			size = static_cast<float>(obj["size"]);
+			position = glm::vec3(obj["position"].at("x"), obj["position"].at("y"), obj["position"].at("z"));
+			pMesh = new CubeMesh{ position,size };
+		}
 		else
 		{
 			continue;
@@ -157,27 +163,6 @@ void VulkanApp::InitVulkan()
 	pScene3D->AddMesh(pHomeObj);
 
 	Scene* pScenePBR{ InitSceneJSON() };
-
-	/*SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
-	pSphereMesh->SetTextureImage("red-scifi-metal_albedo.png");
-	pSphereMesh->SetTextureNormal("red-scifi-metal_normal-ogl.png");
-	pSphereMesh->SetTextureRoughness("red-scifi-metal_roughness.png"); 
-	pSphereMesh->SetTextureSpecular("red-scifi-metal_specular.png");
-	pScenePBR->AddMesh(pSphereMesh);
-
-	SphereMesh* pSphereMesh2 = new SphereMesh{ glm::vec3{0,20,50},20,32,32 };
-	pSphereMesh2->SetTextureImage("TCom_SolarCells_2K_albedo.png");
-	pSphereMesh2->SetTextureNormal("TCom_SolarCells_2K_normal.png");
-	pSphereMesh2->SetTextureRoughness("TCom_SolarCells_2K_roughness.png");
-	pSphereMesh2->SetTextureSpecular("TCom_SolarCells_2K_metallic.png");
-	pScenePBR->AddMesh(pSphereMesh2);
-
-	SphereMesh* pSphereMesh3 = new SphereMesh{ glm::vec3{0,20,-50},20,32,32 };
-	pSphereMesh3->SetTextureImage("worn-modern-panels_albedo.png");
-	pSphereMesh3->SetTextureNormal("worn-modern-panels_normal-ogl.png");
-	pSphereMesh3->SetTextureRoughness("worn-modern-panels_roughness.png");
-	pSphereMesh3->SetTextureSpecular("worn-modern-panels_metallic.png");
-	pScenePBR->AddMesh(pSphereMesh3);*/
 
 
 	InitWindow();
