@@ -18,6 +18,7 @@ public:
 
 	void CalculateViewMatrix();
 	void CalculateProjectionMatrix();
+	void ResetLastPosition();
 	glm::mat4 GetViewMatrix() const;
 	glm::mat4 GetProjectionMatrix() const;
 	glm::mat4 GetWorldViewProjectionMatrix() const;

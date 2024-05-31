@@ -28,6 +28,7 @@ layout(location = 5) in vec3 fragWorldPosition;
 layout(location = 0) out vec4 outColor;
 
 const float PI = 3.14159265358979323846;
+const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -43,8 +44,8 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
+    // float r = (roughness + 1.0);
+    float k = ((roughness * roughness) + 1.0) / 8.0;
     float num = NdotV;
     float denom = NdotV * (1.0 - k) + k;
     return num / denom;
@@ -97,7 +98,6 @@ void main()
     {
         normal = vec3(0.0, 0.0, 1.0);
     }
-
     vec3 ambient = vec3(0.03) * albedo;
 
     vec3 binormal = cross(fragNormal, fragTangent);
@@ -112,39 +112,29 @@ void main()
     float diff = max(dot(tangentNormal, constant.lightDirection), 0.0);
 
     // Fresnel-Schlick approximation
-    vec3 F0;
-    if(metallic == 0.0)
-    {
-        F0 = vec3(0.04);
-    }
-    else 
-    {
-        F0 = albedo;
-    }
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
     vec3 F = F0 + (1.0 - F0) * pow(1.0 - dot(viewDir, halfVector), 5.0);
 
     // Cook-Torrance BRDF
     float D = DistributionGGX(tangentNormal, halfVector, roughness);
     float G = GeometrySmith(tangentNormal, viewDir, constant.lightDirection, roughness);
     vec3 numerator = D * G * F;
-    float denominator = 4.0 * max(0.0, dot(tangentNormal, viewDir)) * max(0.0, dot(tangentNormal, constant.lightDirection)) + 0.001;
+    float denominator = 4.0 * max(0.0, dot(tangentNormal, viewDir)) * max(0.0, dot(tangentNormal, constant.lightDirection));
     vec3 specular = numerator / denominator;
 
     // final color
     vec3 kS = F;
-    vec3 kD;
-    if(metallic == 0.0)
-    {
-        kD = vec3(1.0 - F0.r, 1.0 - F0.g, 1.0 - F0.b);
-    }
-    else 
-    {
-        kD = vec3(0.0);
-    }
+    vec3 kD = vec3(1.0) - kS;
     kD *= 1.0 - metallic;
     vec3 diffuse = (kD * albedo) / PI;
 
+    vec3 irradiance = lightColor * constant.lightIntensity;
+    vec3 observedArea = vec3(dot(tangentNormal, constant.lightDirection));
 
+    //outColor = vec4((albedo*kD) + (constant.lightIntensity) * dot(tangentNormal,constant.lightDirection),1.0);
 
-    outColor = vec4(diffuse + specular * constant.lightIntensity, 1.0);
+    outColor = vec4((diffuse + specular) * observedArea * irradiance, 1.0);
+    // outColor = vec4(vec3(metallic), 1.0);
+    // outColor = vec4(diffuse,1.0);
 }

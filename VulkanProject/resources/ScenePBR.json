@@ -14,18 +14,18 @@
         "useAlbedoMap": false,
         "albedoTexture": "",
         "albedo": {
-          "r": 0.8,
-          "g": 0.8,
-          "b": 0.8
+          "r": 1.0,
+          "g": 0,
+          "b": 1.0
         },
-          "useNormalMap": false,
-          "normalTexture": "",
-          "useRoughnessMap": false,
-          "roughnessTexture": "",
-          "roughness": 0.5,
-          "useMetallicMap": false,
-          "metallicTexture": "",
-          "metallic": 0.0
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 1.0,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 0.0
       }
     },
     {
@@ -82,6 +82,142 @@
         "useMetallicMap": true,
         "metallicTexture": "TCom_SolarCells_2K_metallic.png",
         "metallic": 0.5
+      }
+    },
+    {
+      "type": "ObjMesh",
+      "objFile": "Shovel.obj",
+      "position": {
+        "x": 80.0,
+        "y": 0.0,
+        "z": 100.0
+      },
+      "material": {
+        "useAlbedoMap": true,
+        "albedoTexture": "ShovelAlbedo.png",
+        "albedo": {
+          "r": 1,
+          "g": 1,
+          "b": 1
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 1.0,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 0.0
+      }
+    },
+    {
+      "type": "SphereMesh",
+      "radius": 20.0,
+      "center": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "stacks": 32,
+      "slices": 32,
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 0.1,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
+    },
+    {
+      "type": "SphereMesh",
+      "radius": 20.0,
+      "center": {
+        "x": 0.0,
+        "y": 30.0,
+        "z": 0.0
+      },
+      "stacks": 32,
+      "slices": 32,
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 0.5,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
+    },
+    {
+      "type": "SphereMesh",
+      "radius": 20.0,
+      "center": {
+        "x": 0.0,
+        "y": 60.0,
+        "z": 0.0
+      },
+      "stacks": 32,
+      "slices": 32,
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 1.0,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
+    },
+    {
+      "type": "ObjMesh",
+      "objFile": "vehicle.obj",
+      "position": {
+        "x": 80.0,
+        "y": 0.0,
+        "z": 100.0
+      },
+      "material": {
+        "useAlbedoMap": true,
+        "albedoTexture": "vehicle_diffuse.png",
+        "albedo": {
+          "r": 1,
+          "g": 1,
+          "b": 1
+        },
+        "useNormalMap": true,
+        "normalTexture": "vehicle_normal.png",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 1.0,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 0.0
       }
     }
   ]

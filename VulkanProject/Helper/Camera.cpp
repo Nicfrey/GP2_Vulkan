@@ -91,6 +91,11 @@ void Camera::CalculateProjectionMatrix()
 	m_ProjectionMatrix = glm::perspective(m_FOV, m_Aspect, m_Near, m_Far);
 }
 
+void Camera::ResetLastPosition()
+{
+	m_LastMousePosition = { 0,0 };
+}
+
 glm::mat4 Camera::GetViewMatrix() const
 {
 	return m_ViewMatrix;

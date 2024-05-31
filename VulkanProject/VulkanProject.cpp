@@ -111,6 +111,12 @@ Scene* VulkanApp::InitSceneJSON()
 
 			pMesh = new SphereMesh{ position,size,obj["stacks"],obj["slices"] };
 		}
+		else if(objName == "ObjMesh")
+		{
+			pMesh = new MeshObj{ obj["objFile"] };
+			position = glm::vec3(obj["position"].at("x"), obj["position"].at("y"), obj["position"].at("z"));
+			pMesh->SetPosition(position);
+		}
 		else
 		{
 			continue;
@@ -267,6 +273,7 @@ void VulkanApp::InitWindow()
 		else
 		{
 			app->m_Camera.SetIsDragging(false);
+			app->m_Camera.ResetLastPosition();
 			glfwSetInputMode(app->m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 		if(app->m_Camera.GetIsDragging())
