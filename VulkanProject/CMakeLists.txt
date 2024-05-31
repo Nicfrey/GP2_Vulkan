@@ -74,13 +74,17 @@ set(SOURCES main.cpp
     Helper/SphereMesh.h
     Helper/SphereMesh.cpp
 )
- 
+
+set(IMGUI_DIR ${imgui_SOURCE_DIR})
+include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends ..) 
+
 # Create the executable
-add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES} )
+add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES} ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp ${IMGUI_DIR}/imgui.cpp ${IMGUI_DIR}/imgui_draw.cpp ${IMGUI_DIR}/imgui_demo.cpp ${IMGUI_DIR}/imgui_tables.cpp ${IMGUI_DIR}/imgui_widgets.cpp)
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${stb_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${tinyobjloader_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${json_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)

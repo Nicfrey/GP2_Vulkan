@@ -25,6 +25,14 @@ public:
 	void AddVertex(const glm::vec3& position, const glm::vec3& color, const glm::vec2& textCoord);
 	size_t GetVerticesSizeInByte() const;
 	size_t GetVerticesSize() const;
+	VkDescriptorPool GetDescriptorPool() const;
+	void SetAlbedoValue(const glm::vec3& albedo);
+	void SetRoughnessValue(float roughness);
+	void SetMetallicValue(float metallic);
+	void UseAlbedoMap(bool use);
+	void UseNormalMap(bool use);
+	void UseRoughnessMap(bool use);
+	void UseMetalMap(bool use);
 protected:
 	std::vector<Vertex3D> m_Vertices{};
 	VertexBuffer m_VertexBuffer{};

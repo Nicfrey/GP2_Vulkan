@@ -31,10 +31,11 @@ public:
 	void InitScene(VkPhysicalDevice physicalDevice, VkDevice device, VkCommandPool commandPool, VkQueue graphicQueue) const;
 	void Cleanup(VkDevice device);
 	void DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkExtent2D swapChainExtent) const;
+	void RenderImGui();
 	VkPipeline& GetPipeline() { return m_GraphicsPipeline; }
 	VkPipelineLayout& GetPipelineLayout() { return m_PipelineLayout; }
 	void Update(uint32_t currentFrame, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
-
+	VkDescriptorPool GetDescriptorPool() const { return m_pScene->GetDescriptorPool(); }
 private:
 	static std::vector<char> ReadFile(const std::string& filename);
 	static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<char>& code);
@@ -261,6 +262,12 @@ void Pipeline<T, T0>::DrawFrame(VkCommandBuffer commandBuffer, uint32_t currentF
 
 	// Draw scene
 	m_pScene->Draw(commandBuffer, currentFrame, m_PipelineLayout);
+}
+
+template <typename T, typename T0>
+void Pipeline<T, T0>::RenderImGui()
+{
+	m_pScene->RenderImGui();
 }
 
 template <typename T, typename T0>

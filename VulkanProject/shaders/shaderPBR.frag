@@ -9,8 +9,13 @@ layout(push_constant) uniform Constants {
 	vec3 lightDirection;
 	float lightIntensity;
 	vec3 cameraPos;
-	float shininess;
-	bool useNormal;
+	int useAlbedo;
+    vec3 albedoValue;
+	int useNormal;
+    int useRoughness;
+    float roughnessValue;
+    int useMetal;
+    float metalValue;
 } constant;
 
 layout(location = 0) in vec3 fragColor;
@@ -56,10 +61,42 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-	vec3 albedo = texture(diffuseSampler, fragTexCoord).rgb;
-    float roughness = texture(roughnessSampler, fragTexCoord).r;
-    float metallic = texture(metallicSampler, fragTexCoord).r;
-    vec3 normal = normalize(texture(normalSampler, fragTexCoord).rgb * 2.0 - 1.0);
+    vec3 albedo;
+    float roughness;
+    float metallic;
+    vec3 normal;
+    if(constant.useAlbedo == 1)
+    {
+        albedo = texture(diffuseSampler, fragTexCoord).rgb;
+    }
+    else
+    {
+        albedo = constant.albedoValue;
+    }
+    if(constant.useRoughness == 1)
+	{
+        roughness = texture(roughnessSampler, fragTexCoord).r;
+	}
+	else
+	{
+    	roughness = constant.roughnessValue;
+	}
+    if(constant.useMetal == 1)
+    {
+        metallic = texture(metallicSampler, fragTexCoord).r;
+    }
+    else
+    {
+        metallic = constant.metalValue;
+    }
+    if(constant.useNormal == 1)
+    {
+        normal = normalize(texture(normalSampler, fragTexCoord).rgb * 2.0 - 1.0);
+    }
+    else
+    {
+        normal = vec3(0.0, 0.0, 1.0);
+    }
 
     vec3 ambient = vec3(0.03) * albedo;
 

@@ -62,3 +62,8 @@ void Shader::CreateDescriptorSets(VkDevice device, VkDescriptorSetLayout descrip
 {
 	m_Descriptor->CreateDescriptorSets(device, descriptorLayout, m_UniformBuffer, textureImage, normalImage, roughnessImage, specularImage);
 }
+
+VkDescriptorPool Shader::GetDescriptorPool()
+{
+	return m_Descriptor->GetDescriptorPool();
+}

@@ -16,8 +16,7 @@ FetchContent_MakeAvailable(glfw)
 
 FetchContent_Declare(
   imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        v1.90.6
+  URL https://github.com/ocornut/imgui/archive/refs/tags/v1.90.4.zip
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -46,6 +45,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(tinyobjloader)
 
+FetchContent_Declare(
+	json
+	URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+
+FetchContent_MakeAvailable(json)
 
 find_package(Vulkan REQUIRED)
 

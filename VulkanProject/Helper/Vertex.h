@@ -60,8 +60,13 @@ struct Constants
 	glm::vec3 lightDir{ 0.555f,-0.577f,0.577f };
 	float lightIntensity{ 7.f };
 	glm::vec3 cameraPos{};
-	float shininess{};
-	bool useNormal{ true };
+	int useAlbedo{ 1 };
+	glm::vec3 albedoValue{ 1.f,1.f,1.f };
+	int useNormal{ 1 };
+	int useRoughness{ 1 };
+	float roughnessValue{ 0.5f };
+	int useMetal{ 1 };
+	float metalValue{ 0.5f };
 };
 
 const std::vector<Vertex2D> vertices = {

@@ -21,6 +21,7 @@ public:
 	void Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera);
 	void Cleanup(VkDevice device) const;
 	void AddMesh(Mesh* mesh);
+	VkDescriptorPool GetDescriptorPool() const;
 private:
 	std::vector<Mesh*> m_Meshes{};
 };

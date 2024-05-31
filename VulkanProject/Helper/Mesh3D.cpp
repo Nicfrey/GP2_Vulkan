@@ -5,6 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "imgui.h"
 #include "Shader.h"
 
 void Mesh3D::SetPosition(const glm::vec3& position)
@@ -70,7 +71,6 @@ void Mesh3D::Draw(VkCommandBuffer commandBuffer, uint32_t currentFrame, VkPipeli
 
 void Mesh3D::Update(uint32_t currentImage, float deltaTime, VkExtent2D swapchainExtent, const Camera& camera)
 {
-	m_Constants = { };
 	m_Constants.cameraPos = camera.GetPosition();
 	m_Shader->Update(currentImage, deltaTime,swapchainExtent, camera, GetPosition());
 }
@@ -104,4 +104,44 @@ size_t Mesh3D::GetVerticesSizeInByte() const
 size_t Mesh3D::GetVerticesSize() const
 {
 	return m_Vertices.size();
+}
+
+VkDescriptorPool Mesh3D::GetDescriptorPool() const
+{
+	return m_Shader->GetDescriptorPool();
+}
+
+void Mesh3D::SetAlbedoValue(const glm::vec3& albedo)
+{
+	m_Constants.albedoValue = albedo;
+}
+
+void Mesh3D::SetRoughnessValue(float roughness)
+{
+	m_Constants.roughnessValue = roughness;
+}
+
+void Mesh3D::SetMetallicValue(float metallic)
+{
+	m_Constants.metalValue = metallic;
+}
+
+void Mesh3D::UseAlbedoMap(bool use)
+{
+	m_Constants.useAlbedo = use;
+}
+
+void Mesh3D::UseNormalMap(bool use)
+{
+	m_Constants.useNormal = use;
+}
+
+void Mesh3D::UseRoughnessMap(bool use)
+{
+	m_Constants.useRoughness = use;
+}
+
+void Mesh3D::UseMetalMap(bool use)
+{
+	m_Constants.useMetal = use;
 }

@@ -110,7 +110,7 @@ void VulkanApp::InitVulkan()
 	SphereMesh* pSphereMesh{ new SphereMesh{glm::vec3{0,20,0},20,32,32} };
 	pSphereMesh->SetTextureImage("red-scifi-metal_albedo.png");
 	pSphereMesh->SetTextureNormal("red-scifi-metal_normal-ogl.png");
-	pSphereMesh->SetTextureRoughness("red-scifi-metal_roughness.png");
+	pSphereMesh->SetTextureRoughness("red-scifi-metal_roughness.png"); 
 	pSphereMesh->SetTextureSpecular("red-scifi-metal_specular.png");
 	pScenePBR->AddMesh(pSphereMesh);
 
@@ -843,9 +843,9 @@ void VulkanApp::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imag
 
 	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
-	m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
-	//m_PipelinePBR.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	//m_Pipeline3D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	//m_Pipeline2D.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
+	m_PipelinePBR.DrawFrame(commandBuffer, m_CurrentFrame, m_SwapChainExtent);
 
 
 	vkCmdEndRenderPass(commandBuffer);

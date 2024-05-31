@@ -9,8 +9,13 @@ layout(push_constant) uniform Constants {
 	vec3 lightDirection;
 	float lightIntensity;
 	vec3 cameraPos;
-	float shininess;
-	bool useNormal;
+	int useAlbedo;
+    vec3 albedoValue;
+	int useNormal;
+    int useRoughness;
+    float roughnessValue;
+    int useMetal;
+    float metalValue;
 } constant;
 
 layout(location = 0) in vec3 fragColor;

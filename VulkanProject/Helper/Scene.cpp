@@ -44,3 +44,15 @@ void Scene::AddMesh(Mesh* mesh)
 {
 	m_Meshes.emplace_back(mesh);
 }
+
+VkDescriptorPool Scene::GetDescriptorPool() const
+{
+	for (const auto mesh : m_Meshes)
+	{
+		if(Mesh3D* mesh3D{dynamic_cast<Mesh3D*>(mesh)})
+		{
+			return mesh3D->GetDescriptorPool();
+		}
+	}
+	return VK_NULL_HANDLE;
+}
