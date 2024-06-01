@@ -245,6 +245,84 @@
         "metallicTexture": "CarNicolasMetal.png",
         "metallic": 0.0
       }
+    },
+    {
+      "type": "CubeMesh",
+      "size": 20.0,
+      "position": {
+        "x": 0.0,
+        "y": -50,
+        "z": 0.0
+      },
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 0.5,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
+    },
+    {
+      "type": "CubeMesh",
+      "size": 20.0,
+      "position": {
+        "x": 0.0,
+        "y": -90,
+        "z": 0.0
+      },
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 0.1,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
+    },
+    {
+      "type": "CubeMesh",
+      "size": 20.0,
+      "position": {
+        "x": 0.0,
+        "y": -120,
+        "z": 0.0
+      },
+      "material": {
+        "useAlbedoMap": false,
+        "albedoTexture": "",
+        "albedo": {
+          "r": 0.972,
+          "g": 0.960,
+          "b": 0.915
+        },
+        "useNormalMap": false,
+        "normalTexture": "",
+        "useRoughnessMap": false,
+        "roughnessTexture": "",
+        "roughness": 1.0,
+        "useMetallicMap": false,
+        "metallicTexture": "",
+        "metallic": 1.0
+      }
     }
   ]
 }

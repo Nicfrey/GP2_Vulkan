@@ -1,115 +1,60 @@
 #include "CubeMesh.h"
 
-#include <stdexcept>
-
 #include "MeshObj.h"
 
 CubeMesh::CubeMesh(const glm::vec3& position, float size)
 {
 	SetPosition(position);
 	CreateCube(size);
-	MeshObj::CalculateTangent(m_Vertices, m_Indices);
+	// MeshObj::CalculateTangent(m_Vertices, m_Indices);
 }
 
 void CubeMesh::CreateCube(float size)
 {
-	m_Vertices.clear();
-	m_Indices.clear();
+	const float halfSize{size / 2.f};
 
-	const float halfSize = size / 2.f;
-	AddVertex(Vertex3D{ { -size, -size, size }, glm::vec3{ 1.f },  { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f } });
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z + 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z + 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ -size, center.y + (0.5f * height), center.z + 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
+	std::vector<Vertex3D> vertices{
+		{{-halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.f,0.f,0.f}},
+		{{halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {0.0f, 0.0f,1.0f}, {1.f,0.f,0.f}},
+		{{halfSize, halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {0.0f, 0.f, 1.0f}, {1.f,0.f,0.f}},
+		{{-halfSize, halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {0.0f, 0.0f,1.0f}, {1.f,0.f,0.f}},
 
-	//t1
-	AddIndex(2);
-	AddIndex(1);
-	AddIndex(0);
+		{{halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{halfSize, halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
 
-	//t2
-	AddIndex(0);
-	AddIndex(3);
-	AddIndex(2);
+		{{-halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{-halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{-halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
+		{{-halfSize, halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.f,0.f,1.f}},
 
-	//Left face
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z + 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z + 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f });
 
-	//t1
-	AddIndex(4);
-	AddIndex(5);
-	AddIndex(6);
+		{{-halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{-halfSize, halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{halfSize, halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.f,0.f,0.f}},
 
-	//t2
-	AddIndex(7);
-	AddIndex(6);
-	AddIndex(5);
+		{{-halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{-halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {1.f,0.f,0.f}},
+		{{halfSize, -halfSize, halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {1.f,0.f,0.f}},
 
-	//Right face
-	AddVertex({ center.x - (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x - (0.5f * width), center.y - (0.5f * height), center.z + 0.5f }, { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x - (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f });
-	AddVertex({ center.x - (0.5f * width), center.y + (0.5f * height), center.z + 0.5f }, { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f });
+		{{-halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {-1.f,0.f,0.f}},
+		{{halfSize, -halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {-1.f,0.f,0.f}},
+		{{halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {-1.f,0.f,0.f}},
+		{{-halfSize, halfSize, -halfSize}, glm::vec3{1.f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {-1.f,0.f,0.f}}
+	};
 
-	//t1
-	AddIndex(10);
-	AddIndex(9);
-	AddIndex(8);
+	std::vector<uint32_t> indices{
+		2, 1, 0, 0, 3, 2,
+		4, 5, 6, 7, 6, 5,
+		10, 9, 8, 9, 10, 11,
+		14, 13, 12, 13, 14, 15,
+		16, 17, 18, 19, 18, 17,
+		20, 21, 22, 20, 22, 23
+	};
 
-	//t2
-	AddIndex(9);
-	AddIndex(10);
-	AddIndex(11);
-
-	//Top face
-	AddVertex({ center.x - (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x - (0.5f * width), center.y + (0.5f * height), center.z + 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z + 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
-
-	//t1
-	AddIndex(14);
-	AddIndex(13);
-	AddIndex(12);
-
-	//t2
-	AddIndex(13);
-	AddIndex(14);
-	AddIndex(15);
-
-	//Bottom face
-	AddVertex({ center.x - (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x - (0.5f * width), center.y - (0.5f * height), center.z + 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z + 0.5f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f });
-
-	//t1
-	AddIndex(16);
-	AddIndex(17);
-	AddIndex(18);
-
-	//t2
-	AddIndex(19);
-	AddIndex(18);
-	AddIndex(17);
-
-	//BottomFace
-	AddVertex({ center.x - (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y - (0.5f * height), center.z - 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f }, { -1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x + (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 0.0f, 0.0f });
-	AddVertex({ center.x - (0.5f * width), center.y + (0.5f * height), center.z - 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f }, { -1.0f, 0.0f, 0.0f });
-
-	//t1
-	AddIndex(20);
-	AddIndex(21);
-	AddIndex(22);
-
-	//t2
-	AddIndex(20);
-	AddIndex(22);
-	AddIndex(23);
+	m_Indices = indices;
+	m_Vertices = vertices;
 }
-

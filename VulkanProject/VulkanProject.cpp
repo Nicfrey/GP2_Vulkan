@@ -242,7 +242,10 @@ void FrameBufferReziseCallback(GLFWwindow* window, int width, int height)
 
 void VulkanApp::InitWindow()
 {
-	glfwInit();
+	if(!glfwInit())
+	{
+		throw std::runtime_error("Failed to initialize GLFW");
+	}
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	m_Window = glfwCreateWindow(m_Width, m_Height, "Vulkan", nullptr, nullptr);

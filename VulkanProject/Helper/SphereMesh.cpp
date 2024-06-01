@@ -17,7 +17,7 @@ void SphereMesh::CreateSphere(const glm::vec3& center, float radius, int nbStack
     m_Vertices.clear();
 
     // add top vertex
-    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, radius, 0}}, {1, 1, 1}, {0, 0}, {0, 1, 0}, {0, 0, 0} });
+    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, radius, 0}}, {1, 1, 1}, {0.f, 0.f}, {0, 1, 0}, {0, 0, 0} });
 
     // generate vertices per stack / slice
     for (int i = 0; i < nbStacks - 1; i++)
@@ -39,22 +39,24 @@ void SphereMesh::CreateSphere(const glm::vec3& center, float radius, int nbStack
     }
 
     // add bottom vertex
-    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, -radius, 0}}, {1, 1, 1}, {0, 0}, {0, -1, 0}, {0, 0, 0} });
+    m_Vertices.push_back(Vertex3D{ glm::vec3{glm::vec3{0, -radius, 0}}, {1, 1, 1}, {1.f, 1.f}, {0, -1, 0}, {0, 0, 0} });
 
     // add top / bottom triangles
-    for (int i = 0; i < nbSlices; ++i)
-    {
+    for (int i = 0; i < nbSlices; ++i) {
         int i0 = i + 1;
         int i1 = (i + 1) % nbSlices + 1;
-        m_Indices.push_back(0);
-        m_Indices.push_back(i0);
+        m_Indices.push_back(0); // Top vertex index
         m_Indices.push_back(i1);
+        m_Indices.push_back(i0);
+    }
 
-        i0 = i + nbSlices * (nbStacks - 2) + 1;
-        i1 = (i + 1) % nbSlices + nbSlices * (nbStacks - 2) + 1;
-        m_Indices.push_back(m_Vertices.size() - 1);
-        m_Indices.push_back(i1);
+    // Add bottom triangles
+    for (int i = 0; i < nbSlices; ++i) {
+        int i0 = i + nbSlices * (nbStacks - 2) + 1;
+        int i1 = (i + 1) % nbSlices + nbSlices * (nbStacks - 2) + 1;
+        m_Indices.push_back(static_cast<uint32_t>(m_Vertices.size()) - 1); // Bottom vertex index
         m_Indices.push_back(i0);
+        m_Indices.push_back(i1);
     }
 
     // add quads per stack / slice
