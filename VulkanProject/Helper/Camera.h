@@ -48,7 +48,7 @@ private:
 	glm::mat4 m_ProjectionMatrix{};
 
 	bool m_IsDragging{};
-	float m_Sensitivity{10.f};
+	float m_Sensitivity{100.f};
 	float m_Speed{100.f};
 
 	glm::vec2 m_LastMousePosition{};

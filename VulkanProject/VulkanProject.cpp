@@ -181,12 +181,12 @@ void VulkanApp::InitVulkan()
 	CreateDepthResources();
 	CreateFramebuffers();
 
-	m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, Helper::MAX_FRAMES_IN_FLIGHT);
-	m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, Helper::MAX_FRAMES_IN_FLIGHT);
+	//m_Pipeline2D.InitializePipeline(m_Device,m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue, "shaders/shader.vert.spv","shaders/shader.frag.spv", pScene2D, Helper::MAX_FRAMES_IN_FLIGHT);
+	//m_Pipeline3D.InitializePipeline(m_Device, m_PhysicalDevice,m_SwapChainExtent,m_RenderPass,m_CommandPool, m_GraphicsQueue,"shaders/shader3D.vert.spv","shaders/shader3D.frag.spv", pScene3D, Helper::MAX_FRAMES_IN_FLIGHT);
 	m_PipelinePBR.InitializePipeline(m_Device, m_PhysicalDevice, m_SwapChainExtent, m_RenderPass, m_CommandPool, m_GraphicsQueue, "shaders/shaderPBR.vert.spv", "shaders/shaderPBR.frag.spv", pScenePBR, Helper::MAX_FRAMES_IN_FLIGHT);
 
-	m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
-	m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+	//m_Pipeline3D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
+	//m_Pipeline2D.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 	m_PipelinePBR.InitScene(m_PhysicalDevice, m_Device, m_CommandPool, m_GraphicsQueue);
 
 	CreateCommandBuffer();
@@ -210,8 +210,8 @@ void VulkanApp::Cleanup()
 {
 	CleanupSwapChain();
 
-	m_Pipeline2D.Cleanup(m_Device);
-	m_Pipeline3D.Cleanup(m_Device);
+	//m_Pipeline2D.Cleanup(m_Device);
+	//m_Pipeline3D.Cleanup(m_Device);
 	m_PipelinePBR.Cleanup(m_Device);
 
 	vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
@@ -279,7 +279,7 @@ void VulkanApp::Update()
 	// Update meshes or camera
 	m_Camera.HandleKeyInput(m_Window);
 	m_Camera.Update(m_SwapChainExtent);
-	m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
+	// m_Pipeline3D.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 	m_PipelinePBR.Update(m_CurrentFrame, Helper::TimerVulkan::GetDeltaTime(), m_SwapChainExtent, m_Camera);
 }
 
